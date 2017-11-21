@@ -1,3 +1,5 @@
-# install.packages('rjson')
-library(rjson)
-data <- fromJSON(sprintf("[%s]", paste(readLines("data/reddit_sample.json"),collapse=","))) 
+rm(list = ls())
+library("jsonlite")
+data <- paste(readLines("data/reddit_sample.json"),collapse=",")
+data <- paste('[',data,']')
+df <- fromJSON(data, flatten=TRUE)
