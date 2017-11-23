@@ -1,3 +1,11 @@
+
+# setup -------------------------------------------------------------------
+rm(list = ls())
+library("tidyverse")
+library("lubridate")
+library("Hmisc")
+library("textcat")
+
 news <- read_csv("data/news_2016_12.csv")
 df <- news
 df_test <- news[1:100, ]
@@ -14,8 +22,6 @@ cor(df$score, df$ups)
 unique(news$subreddit_id)
 # Changing the date
 
-#install.packages("lubridate")
-library("lubridate")
 
 # Origin Date
 lubridate::origin # "1970-01-01 UTC"
@@ -80,7 +86,6 @@ df_test = df1[(iSplit + 1):nrow(df1),] # Part of df used for testing
 nTrain = nrow(df_train) # Number of iterations is the number of rows in the df used for training
 
 # Language of titles
-library("Hmisc")
 #%nin% from Hmisc
 # installed package cldr, can be downloaded from here: ftp://cran.r-project.org/pub/R/src/contrib/Archive/cldr
 
@@ -94,7 +99,7 @@ Clean_String <- function(string) {
   #' stuff in your actual analyses).
   temp <- stringr::str_replace_all(temp, "[^a-zA-Z\\s]", " ")
   # Shrink down to just one white space
-  temp <- stringr::str_replace_all(temp, "[\\s]+", " ")
+  temp <- stringr::str_replace_all(temp, "[\\s]+", " ") # remove trailing space
   # Split it
   #temp <- stringr::str_split(temp, " ")[[1]]
   # Get rid of trailing "" if necessary
@@ -130,11 +135,12 @@ lang_determ = function(df){
     mutate(
       title_clean = Clean_String(title),
       lang = textcat::textcat(title, p = my.profiles),
-      lang_clean = textcat(title_clean, p = my.profiles)
     )
 }
 
-lang_determ(df1) # note it takes about 10 min to calculate one 
-lang_determ(df2) 
-lang_determ(df3) 
-lang_determ(df4) 
+dftest_lang <- lang_determ(df_test)
+
+#df1_clean <- lang_determ(df1) # note it takes about 10 min to calculate one 
+#df2_clean <- lang_determ(df2) 
+#df3_clean <- lang_determ(df3) 
+#df4_clean <- lang_determ(df4) 
