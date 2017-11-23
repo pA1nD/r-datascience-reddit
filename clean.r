@@ -97,7 +97,7 @@ Clean_String <- function(string) {
   temp <- string
   #' Remove everything that is not a number or letter (may want to keep more
   #' stuff in your actual analyses).
-  temp <- stringr::str_replace_all(temp, "[^a-zA-Z\\s]", " ")
+  temp <- stringr::str_replace_all(temp, "&.{1,5};", "")
   # Shrink down to just one white space
   temp <- stringr::str_replace_all(temp, "[\\s]+", " ") # remove trailing space
   # Split it
@@ -131,18 +131,16 @@ df3 <- df[34797:52194, ]
 df4 <- df[52195:69593, ]
 
 
-lang_determ = function(df){
+titleClean = function(df){
   df <- df %>%
-    mutate(
-      title_clean = Clean_String(title),
-      lang = textcat::textcat(title, p = my.profiles) # textcat identifies languages
-    ) %>%
-    filter(lang == "en") # filter out non-english languages
+    mutate(lang = textcat(title)) %>%  # textcat identifies languages) %>%
+    filter(lang == "english") %>% # filter out non-english languages
+    mutate(title_clean = Clean_String(title))
 }
 
-dftest_clean <- get_en(df_test)
+dftest_clean <- titleClean(df_test)
 
-#df1_clean <- lang_determ(df1) # note it takes about 10 min to calculate one 
-#df2_clean <- lang_determ(df2) 
-#df3_clean <- lang_determ(df3) 
-#df4_clean <- lang_determ(df4) 
+df1_clean <- titleClean(df1) # note it takes about 10 min to calculate one 
+df2_clean <- titleClean(df2) 
+df3_clean <- titleClean(df3) 
+df4_clean <- titleClean(df4) 
