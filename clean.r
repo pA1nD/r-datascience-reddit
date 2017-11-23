@@ -130,15 +130,17 @@ df2 <- df[17399:34796, ]
 df3 <- df[34797:52194, ]
 df4 <- df[52195:69593, ]
 
+
 lang_determ = function(df){
   df <- df %>%
     mutate(
       title_clean = Clean_String(title),
-      lang = textcat::textcat(title, p = my.profiles),
-    )
+      lang = textcat::textcat(title, p = my.profiles) # textcat identifies languages
+    ) %>%
+    filter(lang == "en") # filter out non-english languages
 }
 
-dftest_lang <- lang_determ(df_test)
+dftest_clean <- get_en(df_test)
 
 #df1_clean <- lang_determ(df1) # note it takes about 10 min to calculate one 
 #df2_clean <- lang_determ(df2) 
