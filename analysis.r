@@ -25,10 +25,11 @@ plotUps <- function(df){
   # plot all upvotes
   plot(dfUps$ups, type="l", col="red", ylab="log total Upvotes")
   #plot only entries with upvotes > 1, log itt, sort decreasing order
-  plot(sort(log(which(dfUps$ups > 0)), decreasing = TRUE), type="l", col="red", ylab="log Upvotes > 1") # most posts only have 1 upvote, >0 fol LN scale
+  dfUpsGr1 = dfUps[which(dfUps$ups > 0), "ups"]
+  plot(dfUpsGr1$ups, type="l", col="red", ylab="log Upvotes > 1") # most posts only have 1 upvote, >0 fol LN scale
   
   # calculate upvotes>1 / total Upvotes
-  print(length(which(dfUps$ups > 0))/ length(dfUps$ups))
+  print(length(which(dfUps$ups > 0)) / length(dfUps$ups))
 }
 print("unclean data")
 plotUps(df)
@@ -38,3 +39,8 @@ plotUps(df_clean)
 # can see that the removal of non-english posts have a positive effect on upvotes
 # The percentage of posts with upvotes > 1 increases from 9 to 14% 
 # after the removal of non-english posts
+
+
+# Binning -----------------------------------------------------------------
+
+# might want only posts with upvotes > 1 - use log scale
