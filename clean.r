@@ -10,9 +10,6 @@ news <- read_csv("data/news_2016_12.csv")
 df <- news
 df_test <- news[1:100, ]
 
-# df <- df_test
-
-
 # Description of data
 print(unique(df$author))# about 15K authors 
 
@@ -67,28 +64,7 @@ calc_numDate = function(df, col = "Date") {
 
 df = calc_numDate(df, col = "period_posted")
 
-# Selecting columns that will be dropped from the complete data set
-col_to_drop <- c(
-  
-)
-
-# Separation of data into training and testing datasets
-set.seed(1)
-
-resh = sample(1:nrow(df1)) # Ransomly arranged numbers from 1 to the length of the df
-
-percTrain = 0.7 # Percentage of observations used for training
-iSplit = percTrain * nrow(df1) # Determine the i value that serves as a splitting point
-
-df_train = df1[1:iSplit ,] # Part of df used for training
-df_test = df1[(iSplit + 1):nrow(df1),] # Part of df used for testing
-
-nTrain = nrow(df_train) # Number of iterations is the number of rows in the df used for training
-
 # Language of titles
-#%nin% from Hmisc
-# installed package cldr, can be downloaded from here: ftp://cran.r-project.org/pub/R/src/contrib/Archive/cldr
-
 
 # Clean the date and select only the english ones
 Clean_String <- function(string) {
@@ -123,7 +99,6 @@ my.profiles <- ECIMCI_profiles[names(ECIMCI_profiles) %nin% c("afrikaans",
                                                               "romanian",
                                                               "scots",
                                                               "swedish")]
-Clean_String(df1$title)
 # parse
 df1 <- df[1:17398, ]
 df2 <- df[17399:34796, ]
@@ -148,3 +123,28 @@ df3_clean <- titleClean(df3)
 df4_clean <- titleClean(df4) 
 
 df_clean <- rbind(df1_clean,df2_clean,df3_clean,df4_clean)
+
+
+
+# End stage: splitting into Training & Testing ----------------------------
+
+
+# Selecting columns that will be dropped from the complete data set
+col_to_drop <- c(
+  
+)
+
+# Separation of data into training and testing datasets
+set.seed(1)
+prep_df = function(df, percTrain){ # percTrain is a percentage of observations used for training
+  resh = sample(1:nrow(df1)) # Ransomly arranged numbers from 1 to the length of the df
+  iSplit = percTrain * nrow(df1) # Determine the i value that serves as a splitting point
+  
+  df_train = df1[1:iSplit ,] # Part of df used for training
+  df_test = df1[(iSplit + 1):nrow(df1),] # Part of df used for testing  
+  
+  nTrain = nrow(df_train) # Number of iterations is the number of rows in the df used for training
+}
+
+prep_df(df_clean, 0.7)
+
