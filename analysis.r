@@ -34,8 +34,7 @@ print("unclean data")
 plotUps(df)
 print("clean data")
 plotUps(df_clean)
-
-# Influencer : Post languaeg
+# Influencer : Post language
 # can see that the removal of non-english posts have a positive effect on upvotes
 # The percentage of posts with upvotes > 1 increases from 9 to 14% 
 # after the removal of non-english posts
