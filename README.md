@@ -25,3 +25,5 @@ tbd.
 
 #### General Stuff
 - https://blog.ycombinator.com/how-to-get-into-natural-language-processing/
+
+* Mean penguin "hahaha" 🐧*
