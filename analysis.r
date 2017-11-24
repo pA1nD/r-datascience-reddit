@@ -14,6 +14,7 @@ library("RColorBrewer")
 # Upvotes -----------------------------------------------------------------
 
 #create upvotes tibble
+print("hello")
 
 plotUps <- function(df){
   dfUps <- df %>% 
