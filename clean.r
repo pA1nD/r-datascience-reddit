@@ -133,9 +133,11 @@ df4 <- df[52195:69593, ]
 
 titleClean = function(df){
   df <- df %>%
-    mutate(lang = textcat(title)) %>%  # textcat identifies languages) %>%
-    filter(lang == "english") %>% # filter out non-english languages
-    mutate(title_clean = Clean_String(title))
+    mutate(
+        title_clean = Clean_String(title),
+        lang = textcat(title)) %>%  # textcat identifies languages) %>%
+    filter(lang == "english") # filter out non-english languages
+    #mutate(title_clean = Clean_String(title))
 }
 
 dftest_clean <- titleClean(df_test)
@@ -144,3 +146,5 @@ df1_clean <- titleClean(df1) # note it takes about 10 min to calculate one
 df2_clean <- titleClean(df2) 
 df3_clean <- titleClean(df3) 
 df4_clean <- titleClean(df4) 
+
+df_clean <- rbind(df1_clean,df2_clean,df3_clean,df4_clean)
