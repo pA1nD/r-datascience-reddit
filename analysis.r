@@ -23,9 +23,9 @@ plotUps <- function(df){
   
   par(mfrow=c(2,1))
   # plot all upvotes
-  plot(dfUps$ups, type="l", col="red")
+  plot(dfUps$ups, type="l", col="red", ylab="log total Upvotes")
   #plot only entries with upvotes > 1, log itt, sort decreasing order
-  plot(sort(log(which(dfUps$ups > 0)), decreasing = TRUE), type="l", col="red") # most posts only have 1 upvote, >0 fol LN scale
+  plot(sort(log(which(dfUps$ups > 0)), decreasing = TRUE), type="l", col="red", ylab="log Upvotes > 1") # most posts only have 1 upvote, >0 fol LN scale
   
   # calculate upvotes>1 / total Upvotes
   print(length(which(dfUps$ups > 0))/ length(dfUps$ups))
