@@ -33,9 +33,9 @@ plotUps <- function(df){
 print("unclean data")
 plotUps(df)
 print("clean data")
-plotUps(df1_clean)
+plotUps(df_clean)
 
+# Influencer : Post languaeg
 # can see that the removal of non-english posts have a positive effect on upvotes
-# The percentage of posts with upvotes > 1 increases from 9 to 14-15% 
+# The percentage of posts with upvotes > 1 increases from 9 to 14% 
 # after the removal of non-english posts
-plotUps(df2_clean)
