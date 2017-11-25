@@ -47,6 +47,5 @@ plotUps(df_clean)
 # might want only posts with upvotes > 1 - use log scale
 
 binUps = function(df){
-  
   maxInt= ceiling(max(df))
 }
