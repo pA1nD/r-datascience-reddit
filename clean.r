@@ -99,6 +99,10 @@ my.profiles <- ECIMCI_profiles[names(ECIMCI_profiles) %nin% c("afrikaans",
                                                               "romanian",
                                                               "scots",
                                                               "swedish")]
+# remove useless rows
+df = df %>%
+  select(-c(selftext,saved,from_kind,from,over_18,subreddit_id,archived,is_self,from_id,quarantine,distinguished))
+
 # parse
 df1 <- df[1:17398, ]
 df2 <- df[17399:34796, ]
