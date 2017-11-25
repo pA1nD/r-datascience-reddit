@@ -23,14 +23,16 @@ plotUps <- function(df){
     select(ups) %>%
     mutate(ups = log(ups)) %>% #exponential dist
     arrange(desc(ups)) #arange descending
-
+  
+  dfUps$ups[is.infinite(dfUps$ups)] = -1
+  
   par(mfrow=c(2,1))
   # plot all upvotes
   plot(dfUps$ups, type="l", col="red", ylab="log total Upvotes")
   #plot only entries with upvotes > 1, log itt, sort decreasing order
-  dfUpsGr1 = dfUps[which(dfUps$ups > 0), "ups"]
+  dfUpsGr1 = dfUps[which(dfUps$ups != 0), "ups"]
   plot(dfUpsGr1$ups, type="l", col="red", ylab="log Upvotes > 1") # most posts only have 1 upvote, >0 fol LN scale
-
+  par(mfrow=c(1,1))
   # calculate upvotes>1 / total Upvotes
   print(length(dfUpsGr1$ups) / length(dfUps$ups) * 100 )
 }
@@ -50,8 +52,14 @@ plotUps(df_clean)
 
 df_clean = df_clean %>% 
   mutate(bin = ceiling(log(ups)))
+df_clean$bin[is.infinite(df_clean$bin)] = -1
 
 plot(df_clean$bin, type="p",xlab="idx sorted by time created", ylab="Bin Distribution of Titles")
 plot(df_clean$bin, type="h",xlab="idx sorted by time created", ylab="Hist Distribution of Titles")
 
 
+# Time Series Analysis ----------------------------------------------------
+
+ts_bin = ts(df_clean$bin)
+ts_bin
+ts.plot(ts_bin)  
