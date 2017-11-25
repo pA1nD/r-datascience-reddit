@@ -53,5 +53,3 @@ df_clean = df_clean %>%
 
 plot(df_clean$bin, type="p",xlab="idx sorted by time created", ylab="Bin Distribution of Titles")
 plot(df_clean$bin, type="h",xlab="idx sorted by time created", ylab="Hist Distribution of Titles")
-
-
