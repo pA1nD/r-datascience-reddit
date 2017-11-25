@@ -58,27 +58,40 @@ negative_positive <- data.frame(reddit_sentiment %>%
                                   #Find how many positive/negative words each play has
                                   count(news.author, sentiment))
 
-# tweets_nrc has been pre-defined
-tweets_nrc
 
-joy_words <- tweets_nrc %>%
-  # Filter to choose only words associated with joy
-  filter(sentiment == "joy") %>%
-  # Group by each word
-  group_by(word) %>%
-  # Use the summarize verb to find the mean frequency
-  summarize(freq = mean(freq)) %>%
-  # Arrange to sort in order of descending frequency
-  arrange(desc(freq))    
+#Counting the negative and positive words per author
+sentiment_counts <- reddit_df %>%
+  # Implement sentiment analysis using the "bing" lexicon
+  inner_join(get_sentiments("bing")) %>%
+  # Count the number of words by title, type, and sentiment
+  count(news.author, news.score, sentiment)
+#It seems like more negative words being used
+#The negativity should be calculated!!!!!
+#I still have to create something there
 
-# Load ggplot2
-library(ggplot2)
 
-joy_words %>%
-  top_n(20) %>%
-  mutate(word = reorder(word, freq)) %>%
-  # Use aes() to put words on the x-axis and frequency on the y-axis
-  ggplot(aes(word, freq)) +
-  # Make a bar chart with geom_col()
-  geom_col() +
-  coord_flip()
+#Now I will calculate how often the words are being used
+word_counts <- reddit_df %>%
+  # Implement sentiment analysis using the "bing" lexicon
+  inner_join(get_sentiments("bing")) %>%
+  # Count by word and sentiment
+  count(word, sentiment)
+
+#the 10 most used negative and positive words
+top_words <- word_counts %>%
+  # Group by sentiment
+  group_by(sentiment) %>%
+  # Take the top 10 for each sentiment
+  top_n(10) %>%
+  ungroup() %>%
+  # Make word a factor in order of n
+  mutate(word = reorder(word, n))
+
+
+
+
+
+
+
+
+
