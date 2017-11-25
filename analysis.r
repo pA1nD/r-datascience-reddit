@@ -4,6 +4,8 @@
 library("tm")
 #library("SnowballC")
 #library("wordcloud")
+library("tidyverse")
+
 library("RColorBrewer")
 # main --------------------------------------------------------------------
 # Read clean data csv
@@ -54,12 +56,16 @@ df_clean = df_clean %>%
   mutate(bin = ceiling(log(ups)))
 df_clean$bin[is.infinite(df_clean$bin)] = -1
 
-plot(df_clean$bin, type="p",xlab="idx sorted by time created", ylab="Bin Distribution of Titles")
-plot(df_clean$bin, type="h",xlab="idx sorted by time created", ylab="Hist Distribution of Titles")
+plot(df_clean$period_posted, df_clean$bin, type="l",xlab="idx sorted by time created", ylab="Bin Distribution of Titles")
+plot(df_clean$period_posted, df_clean$bin, type="p",xlab="idx sorted by time created", ylab="Bin Distribution of Titles")
+plot(df_clean$period_posted, df_clean$bin, type="h",xlab="idx sorted by time created", ylab="Hist Distribution of Titles")
 
 
-# Time Series Analysis ----------------------------------------------------
+# Frequency Analysis ------------------------------------------------------
 
-ts_bin = ts(df_clean$bin)
-ts_bin
-ts.plot(ts_bin)  
+dfBin = group_by(df_clean, bin)
+dfBin <- df_clean %>%
+  group_by(bin) %>%
+  summarise(n = n())
+dfBin
+head(dfBin)
