@@ -195,26 +195,27 @@ library(lubridate)
 
 sentiment_by_time <- reddit_time_df %>%
   # Define a new column using floor_date()
-  mutate(date = floor_date(period_posted, unit = "day")) %>%
+  #mutate(date = floor_date(period_posted, unit = "second")) %>%
   # Group by date
-  group_by(date) %>%
+  group_by(period_posted) %>%
   mutate(total_words = n()) %>%
   ungroup() %>%
   # Implement sentiment analysis using the NRC lexicon
   inner_join(get_sentiments("nrc"))
 
-sentiment_by_time %>%
+sentiment_by_time = sentiment_by_time %>%
   # Filter for positive and negative words
   filter(sentiment %in% c("positive", "negative")) %>%
   # Count by date, sentiment, and total_words
-  count(date, sentiment, total_words) %>%
+  count(period_posted, sentiment, total_words) %>%
   ungroup() %>%
-  mutate(percent = n / total_words) %>%
+  mutate(percent = n / total_words)
   # Set up the plot with aes()
-  ggplot(aes(date, percent, color = sentiment)) +
+plot(sentiment_by_time$period_posted, sentiment_by_time$percent)
+ggplot(sentiment_by_time, aes(period_posted, percent)) + 
   geom_line(size = 1.5) +
-  geom_smooth(method = "lm", se = FALSE, lty = 2) +
-  expand_limits(y = 0)
+  geom_smooth(method = "lm", se = FALSE, lty = 2) #+
+#  expand_limits(y = 0)
 
 
 
