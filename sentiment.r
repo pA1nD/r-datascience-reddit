@@ -164,7 +164,7 @@ reddit_sentiment2 %>%
 # Time Analysis -----------------------------------------------------------
 
 # Load the lubridate package
-library(lubridate)
+
 
 #choosing the time date
 #added the time colum to the new_titles
@@ -187,7 +187,9 @@ reddit_time_df <- tidy_time_reddit %>%
   arrange(desc(news.score))
 
 
-#Now the time analysis starts
+
+# Now the time analysis starts 
+
 library(lubridate)
 
 
