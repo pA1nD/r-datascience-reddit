@@ -8,8 +8,9 @@ news <- read.csv("data/clean_posts.csv")
 #Now I will only select the titles, score and author
 titles <-data.frame(news$author,news$title,news$score)
 
+news_with_known_author <- news %>% filter(author != "[deleted]")
 #Checking out how many posts have more than 1 upvote
-titles2.0 <- subset(titles,news$score > 1) 
+titles2.0 <- subset(titles,news$score != 1) 
 #4442 posts from 31713 posts have more than 1 upvote
 
 
@@ -17,7 +18,7 @@ titles2.0 <- subset(titles,news$score > 1)
 titles$news.author = as.character(titles$news.author)
 titles$news.title = as.character(titles$news.title)
 
-new_titles <- new_titles[c("news.author", "news.title", "news.score")]
+new_titles <- new_titles[c("news.author", "news.title", "news.score",)]
 
 #I will order it after their score
 new_titles <- titles %>% 
@@ -37,9 +38,9 @@ tidy_titles <- new_titles %>%
   #  filter(news.title != "deleted") %>%
   
   # Pipe the tidy reddit data frame to the next line
-tidy_titles %>% 
+#tidy_titles %>% 
   # Use count to find out how many times each word is used
-  count(word, sort = TRUE)
+#  count(word, sort = TRUE)
 #Fun fact: "in" is the most used word ;) 
 
 
@@ -54,7 +55,7 @@ reddit_df <- tidy_titles %>%
 
 reddit_sentiment <- reddit_df %>%
   # Implement sentiment analysis with the "bing" lexicon
-  inner_join(get_sentiments("bing")) 
+  inner_join(get_sentiments("afinn")) 
 
 #Here we can see how many postive and negative words every author used
 negative_positive <- data.frame(reddit_sentiment %>%
@@ -65,7 +66,7 @@ negative_positive <- data.frame(reddit_sentiment %>%
 #Counting the negative and positive words per author
 sentiment_counts <- reddit_df %>%
   # Implement sentiment analysis using the "bing" lexicon
-  inner_join(get_sentiments("bing")) %>%
+  inner_join(get_sentiments("afinn")) %>%
   # Count the number of words by title, type, and sentiment
   count(news.author, news.score, sentiment)
 
@@ -193,23 +194,28 @@ library(lubridate)
 
 sentiment_by_time <- reddit_time_df %>%
   # Define a new column using floor_date()
-  #mutate(date = floor_date(period_posted, unit = "second")) %>%
+  mutate(date = floor_date(period_posted, unit = "hour")) %>%
   # Group by date
-  group_by(period_posted) %>%
+  group_by(date) %>%
   mutate(total_words = n()) %>%
   ungroup() %>%
   # Implement sentiment analysis using the NRC lexicon
   inner_join(get_sentiments("nrc"))
 
-sentiment_by_time = sentiment_by_time %>%
+sentiment_by_time %>%
   # Filter for positive and negative words
   filter(sentiment %in% c("positive", "negative")) %>%
   # Count by date, sentiment, and total_words
-  count(period_posted, sentiment, total_words) %>%
+  count(date, sentiment, total_words) %>%
   ungroup() %>%
-  mutate(percent = n / total_words)
+  mutate(percent = n / total_words) %>%
   # Set up the plot with aes()
-plot(sentiment_by_time$period_posted, sentiment_by_time$percent)
+  ggplot(aes(date, percent, color = sentiment)) +
+  geom_line(size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE, lty = 2) +
+  expand_limits(y = 0)
+
+
 
 # How many words used in analysis
 # Fraction of words used in sentiment analysis of a specific title
@@ -220,5 +226,6 @@ ggplot(sentiment_by_time, aes(period_posted, percent)) +
   geom_line(size = 1.5) +
   geom_smooth(method = "lm", se = FALSE, lty = 2) #+
 #  expand_limits(y = 0)
-
+sentiment_by_time <- sentiment_by_time %>% 
+     
 
