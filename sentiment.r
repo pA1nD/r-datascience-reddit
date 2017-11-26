@@ -8,7 +8,7 @@ news <- read.csv("data/clean_posts.csv")
 
 
 #Now I will only select the titles, score and author
-titles <-data.frame(news$author,news$title,news$score)
+titles <-data.frame(news$author,news$title_clean,news$score)
 
 #Checking out how many posts have more than 1 upvote
 titles2.0 <- subset(titles,news$score > 1) 
