@@ -5,10 +5,8 @@ news <- read.csv("data/clean_posts.csv")
 
 # Cleaning the Data -------------------------------------------------------
 
-
-
 #Now I will only select the titles, score and author
-titles <-data.frame(news$author,news$title_clean,news$score)
+titles <-data.frame(news$author,news$title,news$score)
 
 #Checking out how many posts have more than 1 upvote
 titles2.0 <- subset(titles,news$score > 1) 
@@ -60,7 +58,7 @@ reddit_sentiment <- reddit_df %>%
 
 #Here we can see how many postive and negative words every author used
 negative_positive <- data.frame(reddit_sentiment %>%
-                                  #Find how many positive/negative words each play has
+                                  #Find how many positive/negative words each author has
                                   count(news.author, sentiment))
 
 
@@ -164,7 +162,7 @@ reddit_sentiment2 %>%
 # Time Analysis -----------------------------------------------------------
 
 # Load the lubridate package
-library(lubridate)
+
 
 #choosing the time date
 #added the time colum to the new_titles
@@ -187,36 +185,40 @@ reddit_time_df <- tidy_time_reddit %>%
   arrange(desc(news.score))
 
 
-#Now the time analysis starts
+
+# Now the time analysis starts 
+
 library(lubridate)
 
 
 sentiment_by_time <- reddit_time_df %>%
   # Define a new column using floor_date()
-  mutate(date = floor_date(period_posted, unit = "day")) %>%
+  #mutate(date = floor_date(period_posted, unit = "second")) %>%
   # Group by date
-  group_by(date) %>%
+  group_by(period_posted) %>%
   mutate(total_words = n()) %>%
   ungroup() %>%
   # Implement sentiment analysis using the NRC lexicon
   inner_join(get_sentiments("nrc"))
 
-sentiment_by_time %>%
+sentiment_by_time = sentiment_by_time %>%
   # Filter for positive and negative words
   filter(sentiment %in% c("positive", "negative")) %>%
   # Count by date, sentiment, and total_words
-  count(date, sentiment, total_words) %>%
+  count(period_posted, sentiment, total_words) %>%
   ungroup() %>%
-  mutate(percent = n / total_words) %>%
+  mutate(percent = n / total_words)
   # Set up the plot with aes()
-  ggplot(aes(date, percent, color = sentiment)) +
+plot(sentiment_by_time$period_posted, sentiment_by_time$percent)
+
+# How many words used in analysis
+# Fraction of words used in sentiment analysis of a specific title
+hist(sentiment_by_time$percent)
+axis(side=1, at=seq(0,1, .1))
+
+ggplot(sentiment_by_time, aes(period_posted, percent)) + 
   geom_line(size = 1.5) +
-  geom_smooth(method = "lm", se = FALSE, lty = 2) +
-  expand_limits(y = 0)
-
-
-
-
-
+  geom_smooth(method = "lm", se = FALSE, lty = 2) #+
+#  expand_limits(y = 0)
 
 

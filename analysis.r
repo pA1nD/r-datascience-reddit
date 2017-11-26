@@ -68,6 +68,6 @@ plot(df_clean$period_posted, df_clean$bin, type="h",xlab="idx sorted by time cre
 dfBin = group_by(df_clean, bin)
 dfBin <- df_clean %>%
   group_by(bin) %>%
-  summarise(n = n())
+  summarise(n = n(), mean=log(mean(ups)) )
 dfBin
 head(dfBin)
