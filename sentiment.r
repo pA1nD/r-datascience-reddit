@@ -65,8 +65,8 @@ sentiment_counts <- reddit_df %>%
   inner_join(get_sentiments("bing")) %>%
   # Count the number of words by title, type, and sentiment
   count(news.author, news.score, sentiment)
-#It seems like more negative words being used
-#The negativity should be calculated!!!!!
+
+#The negativity should be calculated!!
 #I still have to create something there
 
 
@@ -86,6 +86,15 @@ top_words <- word_counts %>%
   ungroup() %>%
   # Make word a factor in order of n
   mutate(word = reorder(word, n))
+
+#plot it
+
+ggplot(top_words, aes(word, n, fill = sentiment)) +
+  # Make a bar chart with geom_col()
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free") +  
+  coord_flip()
+
 
 
 
