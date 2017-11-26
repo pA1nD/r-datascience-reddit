@@ -60,7 +60,7 @@ reddit_sentiment <- reddit_df %>%
 
 #Here we can see how many postive and negative words every author used
 negative_positive <- data.frame(reddit_sentiment %>%
-                                  #Find how many positive/negative words each play has
+                                  #Find how many positive/negative words each author has
                                   count(news.author, sentiment))
 
 
