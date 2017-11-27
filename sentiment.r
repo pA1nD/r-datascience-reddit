@@ -18,7 +18,7 @@ titles2.0 <- subset(titles,news$score != 1)
 titles$news.author = as.character(titles$news.author)
 titles$news.title = as.character(titles$news.title)
 
-new_titles <- new_titles[c("news.author", "news.title", "news.score",)]
+#new_titles <- new_titles[c("news.author", "news.title", "news.score",)]
 
 #I will order it after their score
 new_titles <- titles %>% 
@@ -38,9 +38,9 @@ tidy_titles <- new_titles %>%
   #  filter(news.title != "deleted") %>%
   
   # Pipe the tidy reddit data frame to the next line
-#tidy_titles %>% 
+tidy_titles %>% 
   # Use count to find out how many times each word is used
-#  count(word, sort = TRUE)
+ count(word, sort = TRUE)
 #Fun fact: "in" is the most used word ;) 
 
 
@@ -190,11 +190,11 @@ reddit_time_df <- tidy_time_reddit %>%
 # Now the time analysis starts 
 
 library(lubridate)
-
+reddit_time_df$period_posted <- as.POSIXct(reddit_time_df$period_posted)
 
 sentiment_by_time <- reddit_time_df %>%
   # Define a new column using floor_date()
-  mutate(date = floor_date(period_posted, unit = "hour")) %>%
+  mutate(date = floor_date(period_posted, unit = "days")) %>%
   # Group by date
   group_by(date) %>%
   mutate(total_words = n()) %>%
@@ -212,9 +212,10 @@ sentiment_by_time %>%
   # Set up the plot with aes()
   ggplot(aes(date, percent, color = sentiment)) +
   geom_line(size = 1.5) +
-  geom_smooth(method = "lm", se = FALSE, lty = 2) +
+  geom_smooth(method = "lm", se = FALSE, lty = 10) +
   expand_limits(y = 0)
 
+#We have a graph now, where we can see the negative and positive words over time
 
 
 # How many words used in analysis
@@ -226,6 +227,59 @@ ggplot(sentiment_by_time, aes(period_posted, percent)) +
   geom_line(size = 1.5) +
   geom_smooth(method = "lm", se = FALSE, lty = 2) #+
 #  expand_limits(y = 0)
-sentiment_by_time <- sentiment_by_time %>% 
+
+
+
+
+# Analyzing each auhtor by positive and negative words --------------------
+
+reddit_with_known_author <- reddit_sentiment2 %>%
+                            filter(news.author != "[deleted]")
+
+#arranging it after their linenumber(how many posts they have)
+
+reddit_with_known_author = arrange(reddit_with_known_author, desc(linenumber))
+
+
+
+top_author <- head(as.vector(unique(reddit_with_known_author$news.author)),n=4)
+
+
+some_author <- filter(reddit_with_known_author, news.author %in% top_author)
+head(some_author)
+some_author %>%
+  # Filter for only negative words
+  filter(sentiment == "negative") %>%
+  # Count by word and domain
+  count(word, news.author) %>%
+  # Group by domain
+  group_by(news.author) %>%
+  # Take the top 10 words for each domain
+  top_n(10, n) %>%
+  ungroup() %>%
+  mutate(word = reorder(paste(word, news.author, sep = "__"), n)) %>%
+  # Set up the plot with aes()
+  ggplot(aes(word, n, fill = news.author)) +
+  geom_col(show.legend = FALSE) +
+  scale_x_discrete(labels = function(x) gsub("__.+$", "", x)) +
+  facet_wrap(~ news.author, nrow = 2, scales = "free") +
+  coord_flip()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
      
 

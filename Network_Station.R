@@ -13,9 +13,10 @@ network_station <- news %>%
 networking_reddit <- cbind(new_titles, network_station)
 networking_reddit <- select(networking_reddit, -news.author)
 
+#Chancing the order of the columns
 networking_reddit <- networking_reddit[c(3,2,1)]
 
-
+#Putting one word in each row
 tidy_networking_reddit <- networking_reddit %>%
   # Group by the titles of the plays
   group_by(domain) %>%
@@ -29,6 +30,7 @@ tidy_networking_reddit <- networking_reddit %>%
 
 # Which network uses the most negative words? -----------------------------
 
+#inner_join on the dictionary "nrc"
 domain_sentiment <- tidy_networking_reddit %>% 
   # Group by station
   group_by(domain) %>% 
@@ -38,7 +40,7 @@ domain_sentiment <- tidy_networking_reddit %>%
   # Implement sentiment analysis with the NRC lexicon
   inner_join(get_sentiments("nrc"))
 
-#Now we analyze how negative each domain is
+#Now we will analyze how negative each domain is
 domain_negative <- domain_sentiment %>% 
   count(domain, sentiment, domain_total) %>%
   # Define a new column percent
@@ -48,7 +50,7 @@ domain_negative <- domain_sentiment %>%
   # Arrange by percent
   arrange(percent_neg)
 
-#Here we see th positive side
+#Here we will see the positive side of each domain
 domain_positive <- domain_sentiment %>% 
   count(domain, sentiment, domain_total) %>%
   # Define a new column percent
@@ -59,8 +61,10 @@ domain_positive <- domain_sentiment %>%
   # Arrange by percent
   arrange(percent_pos)
 
+#merging the negative and positive dataframe
 domain_all = merge(x = domain_positive, y = domain_negative, by = "domain", all = TRUE)
 
+#choosing the top_domains (that published most news)
 domain_sentiment = arrange(domain_sentiment, desc(linenumber))
 top_domains <- head(as.vector(unique(domain_sentiment$domain)),n=10)
 
@@ -69,7 +73,7 @@ some_domains <- filter(domain_sentiment, domain %in% top_domains)
 head(some_domains)
 some_domains %>%
   # Filter for only negative words
-  filter(sentiment == "positive") %>%
+  filter(sentiment == "negative") %>%
   # Count by word and domain
   count(word, domain) %>%
   # Group by domain
@@ -86,17 +90,7 @@ some_domains %>%
   coord_flip()
 
 
-# Countin the words -------------------------------------------------------
 
-countiing_words <- tidy_networking_reddit %>% 
-  count(domain, word) %>%
-  # Define a new column percent
-  mutate(percent_pos = n / domain_total) %>%
-  # Filter only for negative words
-  select(domain, sentiment, percent_pos, n) %>%
-  filter(sentiment == "positive") %>%
-  # Arrange by percent
-  arrange(percent_pos)
 
 
 
