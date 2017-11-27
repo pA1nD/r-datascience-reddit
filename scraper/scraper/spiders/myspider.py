@@ -2,6 +2,9 @@ import scrapy
 from scrapy.selector import Selector
 from scrapy.http import HtmlResponse
 
+# call spider with
+# scrapy crawl myspider -a filename=urls_test.txt
+
 class MySpider(scrapy.Spider):
     name = "myspider"
 
@@ -26,3 +29,4 @@ class MySpider(scrapy.Spider):
         csvLine = response.url + "; " + title + "\n"
         f = open("titles.txt","a");
         f.write(csvLine)
+        f.close()
