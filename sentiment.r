@@ -210,25 +210,24 @@ sentiment_by_time %>%
   geom_line(size = 1.5) +
   geom_smooth(method = "lm", se = FALSE, lty = 10) +
   expand_limits(y = 0)
-
 #We have a graph now, where we can see the negative and positive words over time
 
 
 # How many words used in analysis
 # Fraction of words used in sentiment analysis of a specific title
-hist(sentiment_by_time$percent)
-axis(side=1, at=seq(0,1, .1))
+#hist(sentiment_by_time$percent)
+#axis(side=1, at=seq(0,1, .1))
 
-ggplot(sentiment_by_time, aes(period_posted, percent)) +
-  geom_line(size = 1.5) +
-  geom_smooth(method = "lm", se = FALSE, lty = 2) #+
+#ggplot(sentiment_by_time, aes(period_posted, percent)) +
+  #geom_line(size = 1.5) +
+  #geom_smooth(method = "lm", se = FALSE, lty = 2) #+
 
 #  expand_limits(y = 0)
 
 
 
 
-# Analyzing each auhtor by positive and negative words --------------------
+# Analyzing each author by positive and negative words --------------------
 
 reddit_with_known_author <- reddit_sentiment2 %>%
                             filter(news.author != "[deleted]")
@@ -239,7 +238,7 @@ reddit_with_known_author = arrange(reddit_with_known_author, desc(linenumber))
 
 
 
-top_author <- head(as.vector(unique(reddit_with_known_author$news.author)),n=4)
+top_author <- head(as.vector(unique(reddit_with_known_author$news.author)),n=10)
 
 
 some_author <- filter(reddit_with_known_author, news.author %in% top_author)
@@ -247,11 +246,11 @@ head(some_author)
 some_author %>%
   # Filter for only negative words
   filter(sentiment == "negative") %>%
-  # Count by word and domain
+  # Count by word and author
   count(word, news.author) %>%
-  # Group by domain
+  # Group by author
   group_by(news.author) %>%
-  # Take the top 10 words for each domain
+  # Take the top 10 words for each author
   top_n(10, n) %>%
   ungroup() %>%
   mutate(word = reorder(paste(word, news.author, sep = "__"), n)) %>%
@@ -261,3 +260,7 @@ some_author %>%
   scale_x_discrete(labels = function(x) gsub("__.+$", "", x)) +
   facet_wrap(~ news.author, nrow = 2, scales = "free") +
   coord_flip()
+
+
+
+
