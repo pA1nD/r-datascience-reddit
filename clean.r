@@ -39,7 +39,7 @@ df <- df %>%
   mutate(
     time_passed = retrieved_on - created_utc,
     time_passed_days = period_retrieved - period_posted,
-    time_passed_days = as.integer(time_passed_days),
+    time_passed_days = as.double(time_passed_days),
     ln_time_passed = log(time_passed_days) # ln of passed days
   )
 
