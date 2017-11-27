@@ -5,7 +5,7 @@ from scrapy.http import HtmlResponse
 # call spider with
 # scrapy crawl myspider -a filename=urls_test.txt
 
-class MySpider(scrapy.Spider):
+class MySpider(scrapy.spiders.CrawlSpider):
     name = "myspider"
 
     def __init__(self, filename=None):
@@ -14,12 +14,15 @@ class MySpider(scrapy.Spider):
             with open(filename, 'r') as f:
                 print("HIII*****************8")
                 self.start_urls = f.read().splitlines()
+                print(len(self.start_urls))
+        return
         f = open("titles.txt","w")
         f.close()
         self.i = 0
         print(self.start_urls)
 
     def parse(self, response):
+    #    print(len(urls))
         page = response.url.split("/")[-2]
         body = response.body
         #print(body)
