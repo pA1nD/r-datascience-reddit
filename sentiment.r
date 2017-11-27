@@ -5,25 +5,24 @@ news <- read.csv("data/clean_posts.csv")
 
 # Cleaning the Data -------------------------------------------------------
 
-
-
 #Now I will only select the titles, score and author
 titles <-data.frame(news$author,news$title,news$score)
 
+news_with_known_author <- news %>% filter(author != "[deleted]")
 #Checking out how many posts have more than 1 upvote
-titles2.0 <- subset(titles,news$score > 1) 
+titles2.0 <- subset(titles,news$score != 1)
 #4442 posts from 31713 posts have more than 1 upvote
 
 
-#I will transfer the dataframes in only characters 
+#I will transfer the dataframes in only characters
 titles$news.author = as.character(titles$news.author)
 titles$news.title = as.character(titles$news.title)
 
-new_titles <- new_titles[c("news.author", "news.title", "news.score")]
+new_titles <- new_titles[c("news.author", "news.title", "news.score",)]
 
 #I will order it after their score
-new_titles <- titles %>% 
-  arrange(desc(news.score)) #%>% 
+new_titles <- titles %>%
+  arrange(desc(news.score)) #%>%
 #select(-news.score)
 
 #Now I will tidy the Data and put one word for one row
@@ -37,12 +36,12 @@ tidy_titles <- new_titles %>%
   unnest_tokens(word, news.title) %>%
   ungroup()
   #  filter(news.title != "deleted") %>%
-  
+
   # Pipe the tidy reddit data frame to the next line
-tidy_titles %>% 
+#tidy_titles %>%
   # Use count to find out how many times each word is used
-  count(word, sort = TRUE)
-#Fun fact: "in" is the most used word ;) 
+#  count(word, sort = TRUE)
+#Fun fact: "in" is the most used word ;)
 
 
 #I will order it after the score
@@ -56,7 +55,7 @@ reddit_df <- tidy_titles %>%
 
 reddit_sentiment <- reddit_df %>%
   # Implement sentiment analysis with the "bing" lexicon
-  inner_join(get_sentiments("bing")) 
+  inner_join(get_sentiments("afinn"))
 
 #Here we can see how many postive and negative words every author used
 negative_positive <- data.frame(reddit_sentiment %>%
@@ -67,7 +66,7 @@ negative_positive <- data.frame(reddit_sentiment %>%
 #Counting the negative and positive words per author
 sentiment_counts <- reddit_df %>%
   # Implement sentiment analysis using the "bing" lexicon
-  inner_join(get_sentiments("bing")) %>%
+  inner_join(get_sentiments("afinn")) %>%
   # Count the number of words by title, type, and sentiment
   count(news.author, news.score, sentiment)
 
@@ -97,7 +96,7 @@ top_words <- word_counts %>%
 ggplot(top_words, aes(word, n, fill = sentiment)) +
   # Make a bar chart with geom_col()
   geom_col(show.legend = FALSE) +
-  facet_wrap(~sentiment, scales = "free") +  
+  facet_wrap(~sentiment, scales = "free") +
   coord_flip()
 
 
@@ -124,9 +123,9 @@ sentiment_contributions <- reddit_df %>%
 #This dictionary has more catagories
 
 
-reddit_sentiment2 <- reddit_df %>% 
+reddit_sentiment2 <- reddit_df %>%
   # Group by author
-  group_by(news.author) %>% 
+  group_by(news.author) %>%
   # Define a new column author_total
   mutate(author_total = n()) %>%
   ungroup() %>%
@@ -135,7 +134,7 @@ reddit_sentiment2 <- reddit_df %>%
 
 
 # Which author use the most negative words?
-reddit_sentiment2 %>% 
+reddit_sentiment2 %>%
   count(news.author, sentiment, author_total) %>%
   # Define a new column percent
   mutate(percent = n/author_total) %>%
@@ -164,7 +163,7 @@ reddit_sentiment2 %>%
 # Time Analysis -----------------------------------------------------------
 
 # Load the lubridate package
-library(lubridate)
+
 
 #choosing the time date
 #added the time colum to the new_titles
@@ -187,13 +186,15 @@ reddit_time_df <- tidy_time_reddit %>%
   arrange(desc(news.score))
 
 
-#Now the time analysis starts
+
+# Now the time analysis starts
+
 library(lubridate)
 
 
 sentiment_by_time <- reddit_time_df %>%
   # Define a new column using floor_date()
-  mutate(date = floor_date(period_posted, unit = "day")) %>%
+  mutate(date = floor_date(period_posted, unit = "hour")) %>%
   # Group by date
   group_by(date) %>%
   mutate(total_words = n()) %>%
@@ -216,7 +217,11 @@ sentiment_by_time %>%
 
 
 
+# How many words used in analysis
+# Fraction of words used in sentiment analysis of a specific title
+hist(sentiment_by_time$percent)
+axis(side=1, at=seq(0,1, .1))
 
-
-
-
+ggplot(sentiment_by_time, aes(period_posted, percent)) +
+  geom_line(size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE, lty = 2) #+
