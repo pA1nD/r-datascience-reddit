@@ -93,8 +93,18 @@ some_domains %>%
 
 
 
+# Checking how popular each domain is for the authors ---------------------
 
 
+network_station <- news %>%
+  select(domain)
+
+author_domain_df <- cbind(new_titles, network_station)
+
+author_domain_df <- author_domain_df[c(1,4,3,2)]
+
+author_domain_df <- author_domain_df %>%
+                    (news.author)
 
 
 
