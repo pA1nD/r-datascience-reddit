@@ -7,7 +7,6 @@ library("tm")
 library("tidyverse")
 library("gpuR")
 
-
 library("RColorBrewer")
 # main --------------------------------------------------------------------
 # Read clean data csv
