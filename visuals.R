@@ -16,7 +16,11 @@ df <- df %>%
   filter(news.author != "[deleted]")
 
 # Trying visual on small set 
+
 df_test <- df[1:200, ]
+
+set.seed(1)
+resh = sample(1:nrow(df))
 
 
 # Playground area ----------------------------------------------------------
@@ -42,7 +46,7 @@ radialNetwork(useRtreeList)
 
 
 
-# Network Visual ----------------------------------------------------------
+# NCR Network Visual ----------------------------------------------------------
 # Using small test data frame
 # Preparing the nodes (contains unique ID's)
 nodes <- data.frame(unique(df_test$word))
@@ -59,22 +63,67 @@ links <- rename(links, c("df_test.sentiment"="to"))
 # Visual
 visNetwork(nodes, links, width="100%", height="400px", main="Network!")
 
-# Final Network Visual ----------------------------------------------------
+# NCR Final Network Visual ----------------------------------------------------
+# WARNING: Crashes 
+
 # Using whole data frame
-network_df <- df
+#network_df <- df
 # Word column contains names of the sentiment - edits the sentiment titles
-network_df$sentiment1 <- paste(network_df$sentiment, "_sentiment")
-nodes <- data.frame(unique(network_df$word))
-nodes1 <- data.frame(unique(network_df$sentiment1))
-nodes1 <- rename(nodes1, c("unique.network_df.sentiment1." = "unique.network_df.word."))
-nodes <- rbind(nodes, nodes1)
-nodes <- rename(nodes, c("unique.network_df.word." = "id"))
+#network_df$sentiment1 <- paste(network_df$sentiment, "_sentiment")
+#nodes <- data.frame(unique(network_df$word))
+#nodes1 <- data.frame(unique(network_df$sentiment1))
+#nodes1 <- rename(nodes1, c("unique.network_df.sentiment1." = "unique.network_df.word."))
+#nodes <- rbind(nodes, nodes1)
+#nodes <- rename(nodes, c("unique.network_df.word." = "id"))
 
-links <- data.frame(network_df$word, network_df$sentiment1)
-links <- rename(links, c("network_df.word"="from"))
-links <- rename(links, c("network_df.sentiment1"="to"))
+#links <- data.frame(network_df$word, network_df$sentiment1)
+#links <- rename(links, c("network_df.word"="from"))
+#links <- rename(links, c("network_df.sentiment1"="to"))
 
 
-visNetwork(nodes, links, width="100%", height="400px", main="Network!")
+#visNetwork(nodes, links, width="100%", height="400px", main="Network!")
+
+# NCR CONCLUSION: 
+# Creates a comprehencive network, where one word allows for multiple sentiments.
+
 #=========================================================================
+
+# afinn Network Visual ----------------------------------------------------------
+# Using small test data frame
+
+df <- read_csv("data/reddit_afinn.csv")
+df <- df %>%
+  filter(news.author != "[deleted]")
+df_test <- df[1:200, ]
+
+nodes <- data.frame(unique(df_test$word))
+nodes <- rename(nodes, c("unique.df_test.word." = "id"))
+nodes1 <- data.frame(unique(df_test$score))
+nodes1 <- rename(nodes1, c("unique.df_test.score." = "id"))
+nodes1$id <- as.character(nodes1$id)
+nodes <- rbind(nodes, nodes1)
+nodes <- na.omit(nodes)
+
+# Preparing the links (contains "from" and "to" columns)
+links <- data.frame(df_test$word, df_test$score)
+links <- rename(links, c("df_test.word"="from"))
+links <- rename(links, c("df_test.score"="to"))
+
+# Visual
+visNetwork(nodes, links, width="100%", height="400px", main="Network!")
+
+# afinn Final Network Visual ----------------------------------------------------
+# Using whole data frame
+
+# afinn conclusion:
+# Each sentiment is presented as an individual cluster, isolated from the other ones.
+
+#=========================================================================
+
+# bing Network Visual ----------------------------------------------------------
+# Using small test data frame
+
+
+
+
 
