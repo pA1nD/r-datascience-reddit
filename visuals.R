@@ -22,6 +22,10 @@ df_test <- df[1:200, ]
 set.seed(1)
 resh = sample(1:nrow(df))
 
+df <- df %>% 
+  mutate(
+    unique = rownames(df)
+  )
 
 # Playground area ----------------------------------------------------------
 # To try: 1) Weight words by frequency; 2) Select top words; 3) Change hierarchy;
@@ -61,7 +65,7 @@ links <- rename(links, c("df_test.word"="from"))
 links <- rename(links, c("df_test.sentiment"="to"))
 
 # Visual
-visNetwork(nodes, links, width="100%", height="400px", main="Network!")
+visNetwork(nodes, links, width="100%", height="400px", main="ncr NLP Network")
 
 # NCR Final Network Visual ----------------------------------------------------
 # WARNING: Crashes 
@@ -110,7 +114,7 @@ links <- rename(links, c("df_test.word"="from"))
 links <- rename(links, c("df_test.score"="to"))
 
 # Visual
-visNetwork(nodes, links, width="100%", height="400px", main="Network!")
+visNetwork(nodes, links, width="100%", height="400px", main="afinn NLP Network")
 
 # afinn Final Network Visual ----------------------------------------------------
 # Using whole data frame
@@ -123,6 +127,31 @@ visNetwork(nodes, links, width="100%", height="400px", main="Network!")
 # bing Network Visual ----------------------------------------------------------
 # Using small test data frame
 
+df <- read_csv("data/bing_sentiment.csv")
+df <- df %>%
+  filter(news.author != "[deleted]")
+df$sentiment1 <- paste(df$sentiment, "_sentiment")
+df_test <- df[1:200, ]
+
+nodes <- data.frame(unique(df_test$word))
+nodes1 <- data.frame(unique(df_test$sentiment1))
+nodes1 <- rename(nodes1, c("unique.df_test.sentiment1." = "unique.df_test.word."))
+nodes <- rbind(nodes, nodes1)
+nodes <- rename(nodes, c("unique.df_test.word." = "id"))
+
+# Preparing the links (contains "from" and "to" columns)
+links <- data.frame(df_test$word, df_test$sentiment1)
+links <- rename(links, c("df_test.word"="from"))
+links <- rename(links, c("df_test.sentiment1"="to"))
+
+# Visual
+visNetwork(nodes, links, width="100%", height="400px", main="Bing NLP Network")
+
+# bing Final Network Visual ----------------------------------------------------
+# Using whole data frame
+
+# bing conclusion: 
+# There are only two groups, as we have two sentiments.
 
 
 
