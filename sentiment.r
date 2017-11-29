@@ -55,35 +55,6 @@ bing_sentiment <- reddit_df %>%
   # Implement sentiment analysis with the "bing" lexicon
   inner_join(get_sentiments("bing"))
 
-# Afinn Dictionary --------------------------------------------------------
-
-#positive and negative scores
-
-reddit_sentiment_with_scores <- reddit_df %>%
-  # Implement sentiment analysis with the "bing" lexicon
-  inner_join(get_sentiments("afinn"))
-
-#now we want to see if a news title is negative or positive by adding the sentiment score
-score_title <- data.frame(reddit_sentiment_with_scores$score)
-
-
-#Here we can see how many postive and negative words every author used
-negative_positive <- data.frame(reddit_sentiment %>%
-                                  #Find how many positive/negative words each author has
-                                  count(news.author, sentiment))
-
-
-#Counting the negative and positive words per author
-sentiment_counts <- reddit_df %>%
-  # Implement sentiment analysis using the "bing" lexicon
-  inner_join(get_sentiments("afinn")) %>%
-  # Count the number of words by title, type, and sentiment
-  count(news.author, news.score, sentiment)
-
-#The negativity should be calculated!!
-#I still have to create something there
-
-
 #Now I will calculate how often the words are being used
 word_counts <- reddit_df %>%
   # Implement sentiment analysis using the "bing" lexicon
@@ -103,11 +74,35 @@ top_words <- word_counts %>%
 
 #plot it
 #This Graph shows the most used negative and positive words
+#with the bing dictionary
 ggplot(top_words, aes(word, n, fill = sentiment)) +
   # Make a bar chart with geom_col()
   geom_col(show.legend = FALSE) +
   facet_wrap(~sentiment, scales = "free") +
   coord_flip()
+
+
+# Afinn Dictionary --------------------------------------------------------
+#we are adding 
+#positive and negative scores
+
+reddit_sentiment_with_scores <- reddit_df %>%
+  # Implement sentiment analysis with the "bing" lexicon
+  inner_join(get_sentiments("afinn"))
+
+#negative_positive <- data.frame(reddit_sentiment_with_scores %>%
+#Find how many positive/negative words each author has
+#count(news.author, sentiment))
+#now we want to see if a news title is negative or positive by adding the sentiment score
+
+score_title <- data.frame(reddit_sentiment_with_scores$score)
+
+
+#Here we can see how many postive and negative words every author used
+#negative_positive <- data.frame(reddit_sentiment_with_scores %>%
+                                  #Find how many positive/negative words each author has
+                                  #count(news.author, sentiment))
+
 
 
 # Another approach with another dictionary („afinn“) ----------------------
@@ -154,7 +149,8 @@ reddit_sentiment2 %>%
   arrange(desc(percent))
 
 
-plot_authors <- reddit_sentiment2 %>%
+#PLOTTING which words are used most often for each sentiment
+  reddit_sentiment2 %>%
   # Count by word and sentiment
   count(word, sentiment) %>%
   # Group by sentiment
