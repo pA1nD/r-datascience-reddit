@@ -174,8 +174,7 @@ reddit_sentiment2 %>%
 #choosing the time date
 #added the time colum to the new_titles
 
-published_date <- news %>%
-                  select(period_posted)
+published_date <- data.frame(news$period_posted)
 
 time_reddit <- cbind(new_titles, published_date)
 
@@ -197,11 +196,15 @@ reddit_time_df <- tidy_time_reddit %>%
 # Now the time analysis starts
 
 library(lubridate)
-reddit_time_df$period_posted <- as.POSIXct(reddit_time_df$period_posted)
 
+reddit_time_df$news.period_posted <- as.POSIXct(reddit_time_df$news.period_posted)
+
+class(reddit_time_df$news.period_posted)
+
+#PLOTTING the sentiment by time
 sentiment_by_time <- reddit_time_df %>%
   # Define a new column using floor_date()
-  mutate(date = floor_date(period_posted, unit = "days")) %>%
+  mutate(date = floor_date(news.period_posted, unit = "days")) %>%
   # Group by date
   group_by(date) %>%
   mutate(total_words = n()) %>%
@@ -254,6 +257,8 @@ top_author <- head(as.vector(unique(reddit_with_known_author$news.author)),n=10)
 
 some_author <- filter(reddit_with_known_author, news.author %in% top_author)
 head(some_author)
+
+#PLOTTING the most used negative words from authors that posted the most
 some_author %>%
   # Filter for only negative words
   filter(sentiment == "negative") %>%
@@ -280,15 +285,15 @@ some_author %>%
 # Idea - high upvotes seem like normally distributed, do mle and maybe naive bayes
 
 
-new_titles <- new_titles %>% 
+new_titles_afinn <- new_titles %>% 
   mutate(title_number = rownames(new_titles))
 
 
 
-new_titles <- new_titles[2:4]
-new_titles <- new_titles[-2]
+new_titles_afinn <- new_titles_afinn[2:4]
+new_titles_afinn <- new_titles_afinn[-2]
 
-merged <- merge(df, new_titles, by = "title_number")
+merged <- merge(df, new_titles_afinn, by = "title_number")
 
 merged = merge(merged, aggregate(score ~ title_number, merged, sum), by="title_number")
 
