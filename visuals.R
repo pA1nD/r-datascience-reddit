@@ -1,5 +1,6 @@
 rm(list = ls())
 
+
 # Visuals -----------------------------------------------------------------
 library("tidyverse")
 #install.packages("igraph") 
@@ -19,17 +20,20 @@ df <- df %>%
 
 df_test <- df[1:200, ]
 
-set.seed(1)
-resh = sample(1:nrow(df))
+#set.seed(1)
+#resh = sample(1:nrow(df))
 
-df <- df %>% 
-  mutate(
-    unique = rownames(df)
-  )
 
 # Playground area ----------------------------------------------------------
 # To try: 1) Weight words by frequency; 2) Select top words; 3) Change hierarchy;
 #         4) Add Positive & Negative sentiment level
+
+# TO DO: 
+# - create functions that prepare data to be used for visual functions
+# - the data sets with frequency of the words (total, author, news provider)
+# - make node sizes dependent on frequency
+# - select 5 top (most popular authors and news providers) draw the plots
+# - check out code for the sunburst diagrams
 
 # Sentiment/Sentiment detail/Word
 
@@ -53,6 +57,12 @@ radialNetwork(useRtreeList)
 # NCR Network Visual ----------------------------------------------------------
 # Using small test data frame
 # Preparing the nodes (contains unique ID's)
+
+# Nodes cotain as well:
+# label - name of the word/sentiment
+# group - by the sentiment
+# value - frequency
+# title (tooltip of the node)
 nodes <- data.frame(unique(df_test$word))
 nodes1 <- data.frame(unique(df_test$sentiment))
 nodes1 <- rename(nodes1, c("unique.df_test.sentiment." = "unique.df_test.word."))
@@ -65,7 +75,13 @@ links <- rename(links, c("df_test.word"="from"))
 links <- rename(links, c("df_test.sentiment"="to"))
 
 # Visual
-visNetwork(nodes, links, width="100%", height="400px", main="ncr NLP Network")
+visNetwork(
+  nodes,
+  links,
+  width = "100%",
+  height = "400px",
+  main = "ncr NLP Network"
+)
 
 # NCR Final Network Visual ----------------------------------------------------
 # WARNING: Crashes 
