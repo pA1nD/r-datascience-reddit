@@ -10,8 +10,8 @@ library("gpuR")
 library("RColorBrewer")
 # main --------------------------------------------------------------------
 # Read clean data csv
-df = read_delim("data/news_2016_12.csv")
-df_clean = read_delim("data/clean_posts.csv", sep=",")
+df = read_delim("data/news_2016_12.csv", ",")
+df_clean = read_delim("data/clean_posts.csv", ",")
 
 # General Plotting --------------------------------------------------------
 
