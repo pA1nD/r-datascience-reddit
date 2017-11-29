@@ -177,6 +177,7 @@ plot_authors <- reddit_sentiment2 %>%
 
 #choosing the time date
 #added the time colum to the new_titles
+
 published_date <- news %>%
                   select(period_posted)
 
@@ -279,10 +280,14 @@ some_author %>%
 
 
 # title sentiment aggregate (afinn) -----------------------------------------------
+#We have a normal distribution
 # Idea - high upvotes seem like normally distributed, do mle and maybe naive bayes
+
 
 new_titles <- new_titles %>% 
   mutate(title_number = rownames(new_titles))
+
+
 
 new_titles <- new_titles[2:4]
 new_titles <- new_titles[-2]
@@ -290,4 +295,73 @@ new_titles <- new_titles[-2]
 merged <- merge(df, new_titles, by = "title_number")
 
 merged = merge(merged, aggregate(score ~ title_number, merged, sum), by="title_number")
-plot(merged$score.y, merged$news.score)
+
+
+ggplot(merged, aes(score.y, news.score.x)) +
+  labs( x = "sentiment value", y = "score") + 
+  # Make a bar chart with geom_col()
+  geom_col(show.legend = FALSE)
+facet_wrap(~ sentiment, scales = "free")
+
+#conlusion:
+#the upvotes tend to be in general higher for negative posts
+#if you look at the extreme ends the up votes are higher for positive posts
+
+
+# Now we will look at the sentiment score and comments --------------------
+descended_news <- news %>%
+                  arrange(desc(score))
+
+comments <- data.frame(descended_news$num_comments)
+
+titles_with_comments <- cbind(arrange(new_titles),comments)
+
+#we are merging the data frame
+merged_comments <- merge(df, titles_with_comments, by = "title_number")
+
+merged_comments = merge(merged_comments, aggregate(score.y ~ title_number, merged, sum), by="title_number")
+
+#plotting it to see the relation between comments and sentiment
+
+ggplot(merged_comments, aes(score.y, descended_news.num_comments)) +
+  labs( x = "sentiment value", y = "comments") + 
+  # Make a bar chart with geom_col()
+  geom_col(show.legend = FALSE)
+facet_wrap(~ sentiment, scales = "free")
+
+
+# Now I will make a time analysis -----------------------------------------
+
+time_posted <- data.frame(descended_news$period_posted)
+
+reddit_time_df$period_posted <- as.POSIXct(reddit_time_df$period_posted)
+
+titles_with_time <- cbind(new_titles,time_posted)
+
+#Now we are merging
+
+merged_time <- merge(df, titles_with_time, by = "title_number")
+
+merged_time = merge(merged_time, aggregate(score.y ~ title_number, merged, sum), by="title_number")
+
+merged_time$descended_news.period_posted <- as.POSIXct(merged_time$descended_news.period_posted)
+
+
+ggplot(merged_time, 
+  aes(descended_news.period_posted, score.y.x)) +
+  geom_point()
+  labs( x = "time", y = "sentiment value") + 
+  # Make a bar chart with geom_col()
+  geom_col(show.legend = FALSE)
+
+class(merged_time$descended_news.period_posted)
+
+names(merged_time)
+
+#
+
+
+
+
+
+
