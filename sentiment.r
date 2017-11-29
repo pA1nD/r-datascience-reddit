@@ -27,6 +27,9 @@ new_titles <- titles %>%
 
 #Now I will tidy the Data and put one word for one row
 
+new_titles <- new_titles %>%
+    mutate(title_number = rownames(new_titles))
+
 tidy_titles <- new_titles %>%
   # Group by the titles of the plays
   group_by(news.author) %>%
@@ -48,10 +51,21 @@ reddit_df <- tidy_titles %>%
 # Sentiment Analysis ------------------------------------------------------
 
 #I will combine our reddit data with the bing lexicon
+bing_sentiment <- reddit_df %>%
+  # Implement sentiment analysis with the "bing" lexicon
+  inner_join(get_sentiments("bing"))
 
-reddit_sentiment <- reddit_df %>%
+# Afinn Dictionary --------------------------------------------------------
+
+#positive and negative scores
+
+reddit_sentiment_with_scores <- reddit_df %>%
   # Implement sentiment analysis with the "bing" lexicon
   inner_join(get_sentiments("afinn"))
+
+#now we want to see if a news title is negative or positive by adding the sentiment score
+score_title <- data.frame(reddit_sentiment_with_scores$score)
+
 
 #Here we can see how many postive and negative words every author used
 negative_positive <- data.frame(reddit_sentiment %>%
@@ -88,7 +102,7 @@ top_words <- word_counts %>%
   mutate(word = reorder(word, n))
 
 #plot it
-
+#This Graph shows the most used negative and positive words
 ggplot(top_words, aes(word, n, fill = sentiment)) +
   # Make a bar chart with geom_col()
   geom_col(show.legend = FALSE) +
@@ -140,7 +154,7 @@ reddit_sentiment2 %>%
   arrange(desc(percent))
 
 
-reddit_sentiment2 %>%
+plot_authors <- reddit_sentiment2 %>%
   # Count by word and sentiment
   count(word, sentiment) %>%
   # Group by sentiment
@@ -264,3 +278,16 @@ some_author %>%
 
 
 
+# title sentiment aggregate (afinn) -----------------------------------------------
+# Idea - high upvotes seem like normally distributed, do mle and maybe naive bayes
+
+new_titles <- new_titles %>% 
+  mutate(title_number = rownames(new_titles))
+
+new_titles <- new_titles[2:4]
+new_titles <- new_titles[-2]
+
+merged <- merge(df, new_titles, by = "title_number")
+
+merged = merge(merged, aggregate(score ~ title_number, merged, sum), by="title_number")
+plot(merged$score.y, merged$news.score)
