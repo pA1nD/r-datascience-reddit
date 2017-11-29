@@ -359,9 +359,23 @@ class(merged_time$descended_news.period_posted)
 names(merged_time)
 
 #
+library('tseries')
+library(plyr)
+
+merged_time$post_time = strptime(merged_time$descended_news.period_posted, "%Y-%m-%d %H")
+merged_ts = merged_time %>%
+  select(score.y.y) %>% 
+  group_by(yr = year(post_time), mon = month(post_time), dy=day(post_time)) %>% 
+  summarise(score = mean(score.y.y))
+
+aggregate(merged_ts$score.y.y, by=(merged_ts$post_time), sum)
+
+aggregate(score.y.y ~ post_time, merged_ts,sum)
+merged_ts[ order(merged_ts$post_time , decreasing = FALSE ),]
 
 
 
+# combining for a regression ----------------------------------------------
 
 
 
