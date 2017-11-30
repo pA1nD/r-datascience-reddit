@@ -14,7 +14,7 @@ titles <-news[c("author","title","score")]
 titles = titles %>%
   mutate(author = as.character(author),
          title = as.character(title)) %>%
-  mutate(title_number = rownames(titles)) %>%
+  mutate(title_id = rownames(titles)) %>%
   arrange(desc(score)) 
 
 #Removing all the unknown author
@@ -37,32 +37,33 @@ df_words <- titles %>%
 # Sentiment Analysis ------------------------------------------------------
 
 #I will combine our reddit data with the bing lexicon
-bing_sentiment <- reddit_df %>%
+bing_sentiment <- df_words %>%
   # Implement sentiment analysis with the "bing" lexicon
   inner_join(get_sentiments("bing"))
 
 #Now I will calculate how often the words are being used
-word_counts <- reddit_df %>%
+word_freq <- df_words %>%
   # Implement sentiment analysis using the "bing" lexicon
   inner_join(get_sentiments("bing")) %>%
   # Count by word and sentiment
   count(word, sentiment)
 
 #the 10 most used negative and positive words
-top_words <- word_counts %>%
-  # Group by sentiment
+# Group by sentiment
+# Take the top 10 for each sentiment
+# Make word a factor in order of n
+
+top_words <- word_freq %>%
   group_by(sentiment) %>%
-  # Take the top 10 for each sentiment
   top_n(10) %>%
   ungroup() %>%
-  # Make word a factor in order of n
   mutate(word = reorder(word, n))
 
 #plot it
 #This Graph shows the most used negative and positive words
 #with the bing dictionary
+# Make a bar chart with geom_col()
 ggplot(top_words, aes(word, n, fill = sentiment)) +
-  # Make a bar chart with geom_col()
   geom_col(show.legend = FALSE) +
   facet_wrap(~sentiment, scales = "free") +
   coord_flip()
@@ -71,17 +72,16 @@ ggplot(top_words, aes(word, n, fill = sentiment)) +
 # Afinn Dictionary --------------------------------------------------------
 #we are adding 
 #positive and negative scores
-
-reddit_sentiment_with_scores <- reddit_df %>%
-  # Implement sentiment analysis with the "bing" lexicon
-  inner_join(get_sentiments("afinn"))
+# Implement sentiment analysis with the "bing" lexicon
+#reddit_sentiment_with_scores <- df_words %>%
+  #inner_join(get_sentiments("afinn"))
 
 #negative_positive <- data.frame(reddit_sentiment_with_scores %>%
 #Find how many positive/negative words each author has
 #count(news.author, sentiment))
 #now we want to see if a news title is negative or positive by adding the sentiment score
 
-score_title <- data.frame(reddit_sentiment_with_scores$score)
+#score_title <- data.frame(reddit_sentiment_with_scores$score)
 
 
 #Here we can see how many postive and negative words every author used
@@ -96,27 +96,28 @@ score_title <- data.frame(reddit_sentiment_with_scores$score)
 
 #Aplying this dictionary to our reddit Data
 #Added also a contribution column, so we can see how important each word is
-sentiment_contributions <- reddit_df %>%
+sentiment_contributions <- df_words %>%
   # Count by title and word
-  count(news.author, word, sort = TRUE) %>%
+  count(author, word, sort = TRUE) %>%
   # Implement sentiment analysis using the "afinn" lexicon
   inner_join(get_sentiments("afinn")) %>%
   # Group by title
-  group_by(news.author) %>%
+  group_by(author) %>%
   # Calculate a contribution for each word in each title
   mutate(contribution = score * n/sum(n)) %>%
   ungroup() %>%
   arrange(desc(contribution))
-#Maybe this will be useful later
+#Result: We see a column with the words that contribute the most
+
 
 
 # Doing it with the dictionary „nrc" --------------------------------------
 #This dictionary has more catagories
 
 
-reddit_sentiment2 <- reddit_df %>%
+nrc_sentiment <- df_words %>%
   # Group by author
-  group_by(news.author) %>%
+  group_by(author) %>%
   # Define a new column author_total
   mutate(author_total = n()) %>%
   ungroup() %>%
@@ -125,8 +126,8 @@ reddit_sentiment2 <- reddit_df %>%
 
 
 # Which author use the most negative words?
-reddit_sentiment2 %>%
-  count(news.author, sentiment, author_total) %>%
+most_negative_author <- nrc_sentiment %>%
+  count(author, sentiment, author_total) %>%
   # Define a new column percent
   mutate(percent = n/author_total) %>%
   # Filter only for negative words
@@ -136,7 +137,7 @@ reddit_sentiment2 %>%
 
 
 #PLOTTING which words are used most often for each sentiment
-  reddit_sentiment2 %>%
+  nrc_sentiment %>%
   # Count by word and sentiment
   count(word, sentiment) %>%
   # Group by sentiment
@@ -155,24 +156,25 @@ reddit_sentiment2 %>%
 # Time Analysis -----------------------------------------------------------
 
 # Load the lubridate package
-
+library(lubridate)
 
 #choosing the time date
 #added the time colum to the new_titles
 
-published_date <- data.frame(news$period_posted)
+published_date <- news[c("period_posted")]
 
-time_reddit <- cbind(new_titles, published_date)
+time_reddit <- cbind(titles, published_date)
 
 #Clean it
-tidy_time_reddit <- time_reddit %>%
+df_words_with_time <- time_reddit %>%
   # Group by the titles of the plays
-  group_by(news.author) %>%
+  group_by(author) %>%
   # Define a new column linenumber
   mutate(linenumber = row_number()) %>%
   # Transform the non-tidy text data to tidy text data
-  unnest_tokens(word, news.title) %>%
-  ungroup()
+  unnest_tokens(word, title) %>%
+  ungroup() %>%
+  arrange(desc(score))
 
 reddit_time_df <- tidy_time_reddit %>%
   arrange(desc(news.score))
@@ -183,14 +185,15 @@ reddit_time_df <- tidy_time_reddit %>%
 
 library(lubridate)
 
-reddit_time_df$news.period_posted <- as.POSIXct(reddit_time_df$news.period_posted)
+#changing the class of the column "period_posted" to POSIXct
+df_words_with_time$period_posted <- as.POSIXct(df_words_with_time$period_posted)
 
-class(reddit_time_df$news.period_posted)
+
 
 #PLOTTING the sentiment by time
-sentiment_by_time <- reddit_time_df %>%
+sentiment_by_time <- df_words_with_time %>%
   # Define a new column using floor_date()
-  mutate(date = floor_date(news.period_posted, unit = "days")) %>%
+  mutate(date = floor_date(period_posted, unit = "days")) %>%
   # Group by date
   group_by(date) %>%
   mutate(total_words = n()) %>%
@@ -229,19 +232,17 @@ sentiment_by_time %>%
 
 # Analyzing each author by positive and negative words --------------------
 
-reddit_with_known_author <- reddit_sentiment2 %>%
-                            filter(news.author != "[deleted]")
+reddit_with_known_author <- nrc_sentiment %>%
+                            filter(author != "[deleted]")
 
 #arranging it after their linenumber(how many posts they have)
+reddit_with_known_author = arrange(reddit_with_known_author, desc(author_total))
 
-reddit_with_known_author = arrange(reddit_with_known_author, desc(linenumber))
-
-
-
-top_author <- head(as.vector(unique(reddit_with_known_author$news.author)),n=10)
+#choosing the top 10 author that post the most
+top_author <- head(as.vector(unique(reddit_with_known_author$author)),n=10)
 
 
-some_author <- filter(reddit_with_known_author, news.author %in% top_author)
+some_author <- filter(reddit_with_known_author, author %in% top_author)
 head(some_author)
 
 #PLOTTING the most used negative words from authors that posted the most
@@ -249,20 +250,21 @@ some_author %>%
   # Filter for only negative words
   filter(sentiment == "negative") %>%
   # Count by word and author
-  count(word, news.author) %>%
+  count(word, author) %>%
   # Group by author
-  group_by(news.author) %>%
+  group_by(author) %>%
   # Take the top 10 words for each author
   top_n(10, n) %>%
   ungroup() %>%
-  mutate(word = reorder(paste(word, news.author, sep = "__"), n)) %>%
+  mutate(word = reorder(paste(word, author, sep = "__"), n)) %>%
   # Set up the plot with aes()
-  ggplot(aes(word, n, fill = news.author)) +
+  ggplot(aes(word, n, fill = author)) +
   geom_col(show.legend = FALSE) +
   scale_x_discrete(labels = function(x) gsub("__.+$", "", x)) +
-  facet_wrap(~ news.author, nrow = 2, scales = "free") +
+  facet_wrap(~ author, nrow = 2, scales = "free") +
   coord_flip()
-
+#result: we see a plot with the most used negative words 
+#from the 10 author that posted the most
 
 
 
@@ -270,25 +272,42 @@ some_author %>%
 #We have a normal distribution
 # Idea - high upvotes seem like normally distributed, do mle and maybe naive bayes
 
+renamed_titles <- titles
 
-new_titles_with_row_numbers <- new_titles %>% 
-  mutate(title_number = rownames(new_titles))
+names(renamed_titles)[names(renamed_titles) == "score"] <- "news.score"
 
-reddit_sentiment_with_scores <- reddit_df %>%
+tidy_renamed_titles <- renamed_titles %>%
+  group_by(author) %>%
+  unnest_tokens(word, title) %>%
+  ungroup()
+
+
+afinn_sentiment <- tidy_renamed_titles %>%
   # Implement sentiment analysis with the "bing" lexicon
   inner_join(get_sentiments("afinn"))
+
+#scores from sentiment and scores from news is the same name
+
+
 
 #new_titles_afinn <- new_titles_afinn[2:4]
 #new_titles_afinn <- new_titles_afinn[-2]
 
-news 
-merged_news <- merge(df, new_titles_afinn, by = "title_number")
 
-merged_news = merge(merged, aggregate(score ~ title_number, merged, sum), by="title_number")
+merged_news <- merge(renamed_titles, afinn_sentiment, by = "title_id") %>%
+  select(-news.score.x)
+names(merged_news)[names(merged_news) == "score"] <- "sentiment_score"
+names(merged_news)[names(merged_news) == "news.score.y"] <- "score"
 
 
-ggplot(merged, aes(score.y, news.score.x)) +
+merged_news_sum= merge(merged_news, aggregate(sentiment_score ~ title_id, merged_news, sum), by="title_id")
+names(merged_news_sum)[names(merged_news_sum) == "sentiment_score.x"] <- "word_sentiment"
+names(merged_news_sum)[names(merged_news_sum) == "sentiment_score.y"] <- "title_sentiment"
+
+
+ggplot(merged_news_sum, aes(title_sentiment, score)) +
   labs( x = "sentiment value", y = "score") + 
+ 
   # Make a bar chart with geom_col()
   geom_col(show.legend = FALSE)
 facet_wrap(~ sentiment, scales = "free")
@@ -307,9 +326,9 @@ comments <- data.frame(descended_news$num_comments)
 titles_with_comments <- cbind(arrange(new_titles),comments)
 
 #we are merging the data frame
-merged_comments <- merge(df, titles_with_comments, by = "title_number")
+merged_comments <- merge(df, titles_with_comments, by = "title_id")
 
-merged_comments = merge(merged_comments, aggregate(score.y ~ title_number, merged, sum), by="title_number")
+merged_comments = merge(merged_comments, aggregate(score.y ~ title_id, merged, sum), by="title_id")
 
 #plotting it to see the relation between comments and sentiment
 
@@ -330,9 +349,9 @@ titles_with_time <- cbind(new_titles,time_posted)
 
 #Now we are merging
 
-merged_time <- merge(df, titles_with_time, by = "title_number")
+merged_time <- merge(df, titles_with_time, by = "title_id")
 
-merged_time = merge(merged_time, aggregate(score.y ~ title_number, merged, sum), by="title_number")
+merged_time = merge(merged_time, aggregate(score.y ~ title_id, merged, sum), by="title_id")
 
 merged_time$descended_news.period_posted <- as.POSIXct(merged_time$descended_news.period_posted)
 
