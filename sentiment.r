@@ -6,46 +6,32 @@ news <- read.csv("data/clean_posts.csv")
 # Cleaning the Data -------------------------------------------------------
 
 #Now I will only select the titles, score and author
-titles <-data.frame(news$author,news$title,news$score)
+titles <-news[c("author","title","score")]
 
-news_with_known_author <- news %>% filter(author != "[deleted]")
+# cast cols  as char
+# assign index as column - to be used as reference for each unique title
+# sort desc by score
+titles = titles %>%
+  mutate(author = as.character(author),
+         title = as.character(title)) %>%
+  mutate(title_number = rownames(titles)) %>%
+  arrange(desc(score)) 
+
+#Removing all the unknown author
+news_author <- news %>% filter(author != "[deleted]")
+
 #Checking out how many posts have more than 1 upvote
-titles2.0 <- subset(titles,news$score != 1)
+print("count posts > 1 upvote:")
+print(nrow(filter(news,score > 1)))
 #4442 posts from 31713 posts have more than 1 upvote
 
-
-#I will transfer the dataframes in only characters
-titles$news.author = as.character(titles$news.author)
-titles$news.title = as.character(titles$news.title)
-
-#new_titles <- new_titles[c("news.author", "news.title", "news.score",)]
-
-#I will order it after their score
-new_titles <- titles %>%
-  arrange(desc(news.score)) #%>%
-#select(-news.score)
-
 #Now I will tidy the Data and put one word for one row
-
-new_titles <- new_titles %>%
-    mutate(title_number = rownames(new_titles))
-
-tidy_titles <- new_titles %>%
-  # Group by the titles of the plays
-  group_by(news.author) %>%
-  # Define a new column linenumber
-  mutate(linenumber = row_number()) %>%
-  # Transform the non-tidy text data to tidy text data
-  unnest_tokens(word, news.title) %>%
+# Group by the author and show words used in titles he posted
+# Transform the non-tidy text data to tidy text data
+df_words <- titles %>%
+  group_by(author) %>%
+  unnest_tokens(word, title) %>%
   ungroup()
-  #  filter(news.title != "deleted") %>%
-
-  # Pipe the tidy reddit data frame to the next line
-
-
-#I will order it after the score
-reddit_df <- tidy_titles %>%
-  arrange(desc(news.score))
 
 
 # Sentiment Analysis ------------------------------------------------------
@@ -285,17 +271,20 @@ some_author %>%
 # Idea - high upvotes seem like normally distributed, do mle and maybe naive bayes
 
 
-new_titles_afinn <- new_titles %>% 
+new_titles_with_row_numbers <- new_titles %>% 
   mutate(title_number = rownames(new_titles))
 
+reddit_sentiment_with_scores <- reddit_df %>%
+  # Implement sentiment analysis with the "bing" lexicon
+  inner_join(get_sentiments("afinn"))
 
+#new_titles_afinn <- new_titles_afinn[2:4]
+#new_titles_afinn <- new_titles_afinn[-2]
 
-new_titles_afinn <- new_titles_afinn[2:4]
-new_titles_afinn <- new_titles_afinn[-2]
+news 
+merged_news <- merge(df, new_titles_afinn, by = "title_number")
 
-merged <- merge(df, new_titles_afinn, by = "title_number")
-
-merged = merge(merged, aggregate(score ~ title_number, merged, sum), by="title_number")
+merged_news = merge(merged, aggregate(score ~ title_number, merged, sum), by="title_number")
 
 
 ggplot(merged, aes(score.y, news.score.x)) +
@@ -331,7 +320,7 @@ ggplot(merged_comments, aes(score.y, descended_news.num_comments)) +
 facet_wrap(~ sentiment, scales = "free")
 
 
-# Now I will make a time analysis -----------------------------------------
+# Now I will make a time analysis to see how sentiments change over time-----------------------------------------
 
 time_posted <- data.frame(descended_news$period_posted)
 
