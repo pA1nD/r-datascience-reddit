@@ -20,7 +20,8 @@ titles <- data.frame (
   df$time_passed_days,
   df$ln_time_passed,
   df$period_posted,
-  df$period_retrieved)
+  df$period_retrieved,
+  df$domain)
 
 #I will order it after their score
 new_titles <- titles %>%
@@ -44,7 +45,25 @@ mean_date <- mean(merged$df.period_posted)
 merged_t <- data.frame(transpose(merged))
 test_df <- merged
 
-split_date 
+library(plyr)
+merged <- rename(
+  merged,
+  c(
+    "score" = "sent_score",            
+    "df.author" = "author",          
+    "df.title_clean" = "title_clean",      
+    "df.score" = "score",
+    "df.num_comments" = "num_comments", 
+    "df.gilded" = "gilted",
+    "df.time_passed_days" = "time_passed_days",
+    "df.ln_time_passed" = "ln_time_passed",
+    "df.period_posted" = "period_posted",
+    "df.period_retrieved" = "period_retrieved",
+    "df.domain" = "domain"
+  )
+)
+
+#write_csv(merged, "data/clean_posts_sent.csv")
 
 # Regressions -------------------------------------------------------------
 
