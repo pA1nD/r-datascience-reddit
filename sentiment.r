@@ -71,28 +71,6 @@ ggplot(top_words, aes(word, n, fill = sentiment)) +
   coord_flip()
 
 
-# Afinn Dictionary --------------------------------------------------------
-# Another approach with another dictionary („afinn“) ----------------------
-#This dictionary has scores for each word from -5 to +5
-
-#Aplying this dictionary to our reddit Data
-#Added also a contribution column, so we can see how important each word is
-# Count by title and word
-# Implement sentiment analysis using the "afinn" lexicon
-# Group by title
-# Calculate a contribution for each word in each title
-
-sentiment_contributions <- df_words %>%
-  count(author, word, sort = TRUE) %>%
-  inner_join(get_sentiments("afinn")) %>%
-  group_by(author) %>%
-  mutate(contribution = score * n/sum(n)) %>%
-  ungroup() %>%
-  arrange(desc(contribution))
-
-#Result: We see a column with the words that contribute the most
-
-
 
 # Doing it with the dictionary „nrc" --------------------------------------
 #This dictionary has more catagories
@@ -245,6 +223,26 @@ some_author %>%
 #from the 10 author that posted the most
 
 
+# Afinn Dictionary --------------------------------------------------------
+# Another approach with another dictionary („afinn“) ----------------------
+#This dictionary has scores for each word from -5 to +5
+
+#Aplying this dictionary to our reddit Data
+#Added also a contribution column, so we can see how important each word is
+# Count by title and word
+# Implement sentiment analysis using the "afinn" lexicon
+# Group by title
+# Calculate a contribution for each word in each title
+
+sentiment_contributions <- df_words %>%
+  count(author, word, sort = TRUE) %>%
+  inner_join(get_sentiments("afinn")) %>%
+  group_by(author) %>%
+  mutate(contribution = score * n/sum(n)) %>%
+  ungroup() %>%
+  arrange(desc(contribution))
+
+#Result: We see a column with the words that contribute the most
 
 # title sentiment aggregate (afinn) -----------------------------------------------
 #We have a normal distribution
