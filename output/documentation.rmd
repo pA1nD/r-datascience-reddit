@@ -1,0 +1,10 @@
+---
+title: "documentation"
+output: pdf_document
+---
+# `Sentiment.r`
+
+* `news`: loaded data from `clean_posts.csv`
+* `news_author`: cleaned df with "deleted" Authors removed
+* `titles`: df with `[author, title, score, uid]`
+* `df_words`: df of words by author in all his posts
