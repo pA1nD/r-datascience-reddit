@@ -15,6 +15,9 @@ library(MASS)
 library(modelr)
 library(forcats)
 
+library(tidytext)
+
+
 D <- read_csv("../data/clean_posts_sent.csv")
 D2 <- read_csv("../data/clean_posts.csv")
 ```
@@ -84,7 +87,6 @@ After these two operations, our dataset is reduced to `3946` rows compared to th
 Since the data is massively skewed, we set the proportion as log10.
 
 ```{r echo=FALSE, fig.height=4, message=FALSE, fig.align="center"}
-
 activity_per_author = D %>% group_by(author) %>% count(author) #checking out many articles
 activity_per_author = activity_per_author %>% filter(author!='[deleted]') #cutting out the deleted ones
 
@@ -156,48 +158,162 @@ Interpretation:
 For every additional day, a post gets an additional 0.09013 upvote. The result is statistically significant given the p-value < 0.02902. 
 
 
-#### 2. Sentiment analysis 
+## 3. Sentiment analysis 
 
-##  Natural Language Processing with `tidytext`:
+###  Natural Language Processing with `tidytext`:
 
 In this part, we will use 2 different libraries: NRC and Afinn in order to compute the sentiment of each word of the data set and ultimately be able to compute the sentiment of the different titles. These 2 libraries will be used for two very different purposes, which will be illustrated in the following examples. 
 
 
-##2.1. Histogram of sentiment analysis of the data set using AFINN OR NRC?? alex part
+### 3.1 Histogram of sentiment analysis of the data set using AFINN OR NRC?? alex part
 
-```{r}
+```{r echo=FALSE, fig.height=2, fig.width=5, message=FALSE, fig.align="center"}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+ggplot(D, aes(x=sent_score))+
+  geom_histogram(color="black", fill='white')+
+  labs(x="Sentiment Score Per Post, n= 15400", y = 'Frequency', title= 'Histogram: Sentiment In The Set')+
+  geom_vline(aes(xintercept=mean(D$sent_score), color='mean: -0.1513'), show.legend = TRUE, size=2)+
+  geom_vline(aes(xintercept=median(D$sent_score), color='median: 0.0000'), show.legend = TRUE, size=1)+
+  geom_vline(aes(xintercept=quantile(D$sent_score,0.25), color='1st quantile: -2.0000'), show.legend = TRUE, size=1)+
+  geom_vline(aes(xintercept=quantile(D$sent_score,0.75), color='3rd quantile: 2.0000'), show.legend = TRUE, size=1)
 
 ```
 
 Interpretation:  
 
-##2.2. Analyze posting behavior with sentiment analysis using Afinn:  
+### 3.2 Analyze posting behavior with sentiment analysis using Afinn:  
 In this part, the goal is to analyze whether people interpret news in a positive or negative way when reposting a news. This is done by analyzing the difference of sentiment level between the source title (title displayed on a news website such as on times.com) and the actual title of the reddit user's post. 
 
 Approach: to do this, source titles have been retrieved with the help of their URL, then the sentiment score on both title lists has been calculated with the help of the Afinn lexicon assigning a weight between `-5 < weight < 5` for every word. We chose Afinn because it ranks the sentiment on a scala, making it easier to compare. Finally, the difference has been computed which enables to get some insights as seen in the following graphics: the histogram shows the proportions of posts changed, positive or negative while the 3D chart illustrates the percentage.
 
-```{r}
+```{r echo=FALSE, fig.height=3, fig.width=4, fig.align="center", message=FALSE, warning=FALSE}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+library(plyr)
+library(plotrix)
+
+D2 <- D2 %>%
+  mutate(index_author = 1:nrow(D2))
+
+
+# Retrieve Data of URL-----------------------------------------------------------------
+
+TITLE_NEWS <- read_delim("../data/titles.csv", "; ", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+
+
+# Clean, add legend and merge tabs with URL  ----------------------------------------------------
+
+names(TITLE_NEWS)[1]<-paste("Source URL")
+names(TITLE_NEWS)[2]<-paste("source title")
+names(D2)[5]<-paste("Source URL")
+
+TITLE_NEWS <- TITLE_NEWS %>%
+  dplyr::select("Source URL", "source title")
+
+TITLE_merged <- inner_join(TITLE_NEWS, D2, by = "Source URL")
+
+
+# create new tab with only relevant columns  ------------------------------
+
+Title_analysis <-
+  TITLE_merged %>% dplyr::select("author",
+                        "domain",
+                        "Source URL",
+                        "num_comments",
+                        "score",
+                        "title",
+                        "source title",
+                        "period_posted",
+                        "period_retrieved",
+                        "index_author")
+
+
+# Separate the data (in words) so that the library Afinn can be applied ---------------------
+
+Title <- TITLE_merged %>% dplyr:: select("title", "index_author")
+Source_title <- TITLE_merged %>% dplyr:: select("source title", "index_author")
+
+title_words <- Title %>%
+  unnest_tokens(word, title)
+
+title_source_words <- Source_title %>%
+  unnest_tokens(word, "source title")
+
+
+# Compute the sentimentanalysis on the words --------------------------
+
+# titles
+afinn <- title_words %>%
+  inner_join(get_sentiments("afinn"))
+
+afinn_grouped_title <- title_words %>%
+  inner_join(get_sentiments("afinn")) %>%
+  group_by(index_author) %>%
+  dplyr::summarise(sentiment = sum(score))
+
+# source titles
+afinn_source <- title_source_words %>%
+  inner_join(get_sentiments("afinn"))
+
+afinn_grouped_source_title <- title_source_words %>%
+  inner_join(get_sentiments("afinn")) %>%
+  group_by(index_author) %>%
+  dplyr::summarise(sentiment_source = sum(score))
+
+merged_sentiment_titles <- inner_join(afinn_grouped_title, afinn_grouped_source_title, by = "index_author")
+
+# Plot the difference between both
+merged_sentiment_titles <- merged_sentiment_titles %>%
+  dplyr::mutate(interpretation_level = sentiment - sentiment_source)
+
+
+merged_sentiment_titles <- merged_sentiment_titles %>%
+  dplyr::mutate( interpretation1 = merged_sentiment_titles$interpretation_level * 0)
+
+for (i in 1:nrow(merged_sentiment_titles)) {
+  if (merged_sentiment_titles$interpretation_level[i] < 0) {
+    merged_sentiment_titles$interpretation1[i] <- "Negative"
+  } else if (merged_sentiment_titles$interpretation_level[i] > 0) {
+    merged_sentiment_titles$interpretation1[i] <- "Positive"
+  } else if (merged_sentiment_titles$interpretation_level[i] == 0) {
+    merged_sentiment_titles$interpretation1[i] <- "No change"
+  } else 
+    { "NA" }
+  }
+
+p = length(which(merged_sentiment_titles$interpretation1 == "Positive"))
+n = length(which(merged_sentiment_titles$interpretation1 == "Negative"))
+nc = length(which(merged_sentiment_titles$interpretation1 == "No change"))
+
+number_of_interpretation <-c(p, n, nc)
+kind_of_interpretation <- c("positive", "negative", "no change")
+percentage <- round(number_of_interpretation/sum(number_of_interpretation)*100)
+labels <- paste(kind_of_interpretation, percentage)
+labels <- paste(labels,"%",sep="")
+
+pie3D(number_of_interpretation,labels=labels,explode=0.5,
+      main="Pie Chart 3D of interpretation levels ",
+      col=c("brown","#ddaa00","pink","#dd00dd"))
+
 
 ```
 
-#Interpretation: 
+Interpretation: 
 As observed on the pie chart, most Reddit users (4 out of 5 users) tend to repost exactly the same title that comes from the source title, while 12% of the users in this data set repost it in a negative way (when different in sentiment is negative) and the rest (9%) repost it in a positive way. 
 
 
-##2.3.	Estimation of proportion of each sentiment in reddit titles: how to illustrate sentiment through : Radial dendrogram
+### 2.3 Estimation of proportion of each sentiment in reddit titles: how to illustrate sentiment through : Radial dendrogram
 
-```{r}
-Tatiana's Radial dendrogram
+[It's interactive. Click here to try it out online.](https://pa1nd.github.io/r-datascience-reddit/Radial_NRC_Visual.html)
+
+```{r echo=FALSE, message=FALSE, out.width="200px", fig.align="center"}
+knitr::include_graphics("assets/radial_dendrogram.png")
 ```
+
 
 ##2.4. How the sentiments are related : network diagrame
 ```{r}
 
-Tatiana's dendogram
+# Tatiana's dendogram
 
 ```
 
@@ -216,7 +332,7 @@ This splits the data in X% successful posts and X% not successful posts. Then, w
 
 ```{r}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+# histogram of positive and negative + choose the 3D pie chart (next to each other?)
 
 ```
 
@@ -224,7 +340,7 @@ histogram of positive and negative + choose the 3D pie chart (next to each other
 
 ```{r}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+# histogram of positive and negative + choose the 3D pie chart (next to each other?)
 
 ```
 
