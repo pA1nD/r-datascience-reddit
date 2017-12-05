@@ -121,6 +121,8 @@ merged_sentiment_titles <- merged_sentiment_titles %>%
 
 # Plot results  -----------------------------------------------------------
 
+summary(merged_sentiment_titles$interpretation_level)
+
 ggplot(merged_sentiment_titles) +
   geom_point(aes(index_author, interpretation_level)) +
   geom_smooth(mapping = aes(index_author, interpretation_level))
@@ -128,20 +130,65 @@ ggplot(merged_sentiment_titles) +
 ggplot(merged_sentiment_titles) +
   geom_line(aes(index_author, interpretation_level)) 
 
+hist(merged_sentiment_titles$interpretation_level, main = "histogram of interpretation level", xlab = "interpretation level", col = "red", bin_with=30)
+
+summary(merged_sentiment_titles$interpretation_level)
+
+boxplot(merged_sentiment_titles$interpretation_level, main = "histogram of interpretation level", xlab = "interpretation level")
+
 
 # More plotting -----------------------------------------------------------
 
-#Bar chart observing how many 0, >0 and <0 
+merged_sentiment_titles <- merged_sentiment_titles %>%
+  dplyr::mutate( interpretation1 = merged_sentiment_titles$interpretation_level * 0)
+  
 
+#loop 
 
+for (i in 1:nrow(merged_sentiment_titles)) { 
+  if (merged_sentiment_titles$interpretation_level[i] < 0) {
+    merged_sentiment_titles$interpretation1[i] <- "Negative"
+  } else if (merged_sentiment_titles$interpretation_level[i] > 0) {
+    merged_sentiment_titles$interpretation1[i] <- "Positive"
+  } else if (merged_sentiment_titles$interpretation_level[i] == 0) {
+    merged_sentiment_titles$interpretation1[i] <- "No change"
+  } else { "NA" 
+    }
+  }                                                                                                                0 = "unchanged"))
 
-merged_sentiment_titles_bar <- merged_sentiment_titles %>%
-  mutate(category = sapply(merged_sentiment_titles$interpretation_level, switch, 
-                           0 = "No interpretation"
-                           1 = "positive interpretation" 
-                           -1 = "negative interpretation"))
+summary(merged_sentiment_titles$interpretation1)
 
+ggplot(data = merged_sentiment_titles) +
+  geom_bar(mapping = aes(x = interpretation1))
 
+library(plyr)
+length(which(merged_sentiment_titles$interpretation1 == "Positive"))
 
+length(which(merged_sentiment_titles$interpretation1 == "Negative"))
 
+length(which(merged_sentiment_titles$interpretation1 == "No change"))
+
+number_of_interpretation <-c(489, 675, 4550)
+kind_of_interpretation <- c("positive", "negative", "no change")
+percentage <- round(number_of_interpretation/sum(number_of_interpretation)*100)
+labels <- paste(kind_of_interpretation, percentage)
+labels <- paste(labels,"%",sep="")
+
+pie(number_of_interpretation,labels = labels, col=rainbow(length(labels)),
+    main="Pie Chart of interpretation levels")
+
+install.packages("plotrix")
+library(plotrix)
+
+pie3D(number_of_interpretation,labels=labels,explode=0.5,
+      main="Pie Chart 3D of interpretation levels ")
+
+#check  in book
+ggplot(data = merged_sentiment_titles) + 
+  stat_summary(
+    mapping = aes(x = sentiment_level, y = interpretation_level)
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+    )
 

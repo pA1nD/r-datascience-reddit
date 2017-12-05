@@ -1,72 +1,121 @@
-# Setup -------------------------------------------------------------------
-#source("clean.r")
+install.packages('tidyverse')
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(MASS)
 
-library("tm")
-#library("SnowballC")
-#library("wordcloud")
-library("tidyverse")
-library("gpuR")
+#load data set
+library(readr)
+clean_posts <- read_csv("~/Desktop/DS Group Project/clean_posts_sent.csv")
+View(clean_posts)
 
-library("RColorBrewer")
-# main --------------------------------------------------------------------
-# Read clean data csv
-df = read_delim("data/news_2016_12.csv", ",")
-df_clean = read_delim("data/clean_posts.csv", ",")
+D = clean_posts
 
-# General Plotting --------------------------------------------------------
+# Authors and their activity-----------------------------------------------------------------
 
 
-# Upvotes -----------------------------------------------------------------
+activity_per_author = D %>% group_by(author) %>% count(author) #checking out many articles
+#each author has
 
-#create upvotes tibble
-print("hello")
+activity_per_author = activity_per_author %>% filter(author!='[deleted]')#cutting out the deleted ones
 
-plotUps <- function(df){
-  dfUps <- df %>%
-    select(ups) %>%
-    mutate(ups = log(ups)) %>% #exponential dist
-    arrange(desc(ups)) #arange descending
-  dfUps$ups[is.infinite(dfUps$ups)] = -1
+
+
+# Inspecting the data and chopping it due to extreme skew in the distribution ----------------------------------------------------------------
+
+#summary(D$num_comments) #inspecting the statistics of the number of commments
+                        #makes me think about cutting either the 0s out or use log on y axis
+
+#summary(D$ups) #inspecting the number of ups
+
+#ninetynine_th_percentile_com = quantile(D$num_comments,c(.99)) # 99% of the posts contain 212 comments or less
+#ninetynine_th_percentile_ups = quantile(D$ups,c(.99))#99% of posts have 695 ups or less
+
+#D = D %>% filter(num_comments<213, ups<696) # chopping the last percentile off to get rid of outliers
+
+# Plotting ----------------------------------------------------------------
+# Getting a feel on which log base to use for scaling
+# log10(100)
+# log10(42)
+# log(42)
+# log(100,20)
+
+
+par(mfrow=c(2,3))
+
+boxplot(log10(D$num_comments+1), main= "Boxplot: log10(Number of comments+1)", xlab="n = 15400")
+
+boxplot(log10(D$score+1), main= "Boxplot: log10(Score Number+1)", xlab = "n = 15400")
+
+boxplot(log10(activity_per_author$n), main='Box: log10(Activity per author)', xlab= "n = 5799")
+
+hist(log10(x=D$num_comments+1),main = "Histogram of number of comments(log10)", col = 'red', xlab ="log10(Number of Comments + 1)")
+
+hist(log10(x=D$score+1),main = "Histogram of number of ups(log10)", col='red', xlab = "log10(Score Number + 1)")
+
+hist(log10(activity_per_author$n), main = 'Histogram of activity per author (log10)', col = 'red', xlab = "log10(activity per author)")
+
+
+# Stats to get away from log10 scaling and get an idea about the real skew ---------------------------------------------------------------
+# IGNORE the MEAN - complete bogus given the skew we have - Only used summary()
+# instead of quantiles() to illustrate the nonsense of the mean to class during the presentation
+
+
+stats_D_scores=summary(D$score)
+stats_D_num_comments=summary(D$num_comments)
+stats_activity_p_author=summary(activity_per_author$n)
+
+
+
+# ONLY INTERESTING FOR PLOT: Effect of Number of comments on Number of Ups-----------------
+
+xlab= 'Number Of Comments'
+ylab='Score Number'
+
+ggplot(D) + 
+  # scatterplot
+  geom_point(aes(num_comments, score), color = "green4") +
   
-  par(mfrow=c(2,1))
-  # plot all upvotes
-  plot(dfUps$ups, type="l", col="red", ylab="log total Upvotes")
-  #plot only entries with upvotes > 1, log itt, sort decreasing order
-  dfUpsGr1 = dfUps[which(dfUps$ups != 0), "ups"]
-  plot(dfUpsGr1$ups, type="l", col="red", ylab="log Upvotes > 1") # most posts only have 1 upvote, >0 fol LN scale
+  #add curve that shows statistical relationship between variables
+  geom_smooth(aes(num_comments, score), method = "lm" ,color = "red3")+
+  labs(x = xlab, y = ylab, 
+       title = "Regression: Number Of Comments vs. Score Number")
+
+
+# Estimator results
+reg = lm(D$score ~ D$num_comments)
+summary(reg)
+
+
+
+# Sentiment Analysis in the Sample --------------------------------------
+
+summary(D$sent_score) # checking the stats
+
+#par(mfrow=c(1,1))
+
+#hist(D$sent_score, main = "Sentiment Analysis In The Set", xlab = "Sentiment score per post, n = 15400", col = "orange")
+
+ggplot(D, aes(x=sent_score))+
+  geom_histogram(color="black", fill='white')+
+  labs(x="Sentiment Score Per Post, n= 15400", y = 'Frequency', title= 'Histogram: Sentiment In The Set')+
+  geom_vline(aes(xintercept=mean(D$sent_score), color='mean: -0.1513'), show.legend = TRUE, size=2)+
+  geom_vline(aes(xintercept=median(D$sent_score), color='median: 0.0000'), show.legend = TRUE, size=1)+
+  geom_vline(aes(xintercept=quantile(D$sent_score,0.25), color='1st quantile: -2.0000'), show.legend = TRUE, size=1)+
+  geom_vline(aes(xintercept=quantile(D$sent_score,0.75), color='3rd quantile: 2.0000'), show.legend = TRUE, size=1)
   
-  par(mfrow=c(1,1))
-  # calculate upvotes>1 / total Upvotes
-  print(length(dfUpsGr1$ups) / length(dfUps$ups) * 100 )
-}
-print("% ups > 1 for unclean data")
-plotUps(df)
-print("% ups > 1 for clean data")
-plotUps(df_clean)
-# Influencer : Post language
-# can see that the removal of non-english posts have a positive effect on upvotes
-# The percentage of posts with upvotes > 1 increases from 9 to 14%
-# after the removal of non-english posts
 
 
-# Binning -----------------------------------------------------------------
+# Correlation Matrix -------------
+install.packages('corrplot')
+library(corrplot)
 
-# might want only posts with upvotes > 1 - use log scale
+par(mfrow=c(1,1))
 
-df_clean = df_clean %>% 
-  mutate(bin = ceiling(log(ups)))
-df_clean$bin[is.infinite(df_clean$bin)] = -1
+numericalVariables = D[ ,c(2,5,6,8)]
 
-plot(df_clean$period_posted, df_clean$bin, type="l",xlab="idx sorted by time created", ylab="Bin Distribution of Titles")
-plot(df_clean$period_posted, df_clean$bin, type="p",xlab="idx sorted by time created", ylab="Bin Distribution of Titles")
-plot(df_clean$period_posted, df_clean$bin, type="h",xlab="idx sorted by time created", ylab="Hist Distribution of Titles")
+corrMat = cor(numericalVariables)
 
+corrplot(corrMat, method = 'pie')
+  
 
-# Frequency Analysis ------------------------------------------------------
-
-dfBin = group_by(df_clean, bin)
-dfBin <- df_clean %>%
-  group_by(bin) %>%
-  summarise(n = n(), mean=log(mean(ups)) )
-dfBin
-head(dfBin)

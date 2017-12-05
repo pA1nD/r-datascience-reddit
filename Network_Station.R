@@ -1,5 +1,5 @@
 # Analyzing each network station ------------------------------------
-
+library(dplyr)
 library("tidyverse")
 library("tidytext")
 
@@ -7,14 +7,14 @@ library("tidytext")
 # Cleaning the Data -------------------------------------------------------
 
 
-network_station <- news %>%
-  select(domain)
+network_station <- data.frame(news$domain)
+names(network_station)[1] <- "domain"
 
 networking_reddit <- cbind(new_titles, network_station)
 networking_reddit <- select(networking_reddit, -news.author)
 
 #Chancing the order of the columns
-networking_reddit <- networking_reddit[c(3,2,1)]
+networking_reddit <- networking_reddit[c(5,2,3)]
 
 #Putting one word in each row
 tidy_networking_reddit <- networking_reddit %>%
@@ -83,6 +83,7 @@ some_domains %>%
   ungroup() %>%
   mutate(word = reorder(paste(word, domain, sep = "__"), n)) %>%
   # Set up the plot with aes()
+  #This plot shows what kind of negative words the different news agencies use 
   ggplot(aes(word, n, fill = domain)) +
   geom_col(show.legend = FALSE) +
   scale_x_discrete(labels = function(x) gsub("__.+$", "", x)) +
@@ -96,15 +97,17 @@ some_domains %>%
 # Checking how popular each domain is for the authors ---------------------
 
 
-network_station <- news %>%
+#network_station <- news %>%
   select(domain)
 
-author_domain_df <- cbind(new_titles, network_station)
+#author_domain_df <- cbind(new_titles, network_station)
 
-author_domain_df <- author_domain_df[c(1,4,3,2)]
+#author_domain_df <- author_domain_df[c(1,4,3,2)]
 
-author_domain_df <- author_domain_df %>%
+#author_domain_df <- author_domain_df %>%
                     (news.author)
+
+
 
 
 
