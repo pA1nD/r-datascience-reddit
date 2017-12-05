@@ -15,18 +15,17 @@ There are many ways to represent and analyse the data sets, we decided to explor
 
 
 ```{r cars}
-"Radial NRC Visual.html"
+"Radial_NRC_Visual.html"
 ```
 
-Secondly, just as in real life there are multiple interpretations, a single word is allocated to the multiple sentiments. To explore this further we create an interactive network, which portrays connections between words and sentiment. Indeed, as seen on the graph below, a single word may be allocated to the multiple sentiments, but this is not always the case due to the fact that   
+Secondly, just as in real life there are multiple interpretations, a single word is allocated to the multiple sentiments. To explore this further we create an interactive network, which portrays connections between words and sentiment. Indeed, as seen on the graph below, a single word may be allocated to the multiple sentiments. The emotions associated with either positive or negative sentiment are grouped together, only a "surprise" node is located in the middle linking the words associated with both.
 
-## Including Plots
-
-You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+"Network_NRC_Visual.html"
 ```
+
+
 
 References: 
 
