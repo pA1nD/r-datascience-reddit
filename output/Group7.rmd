@@ -74,16 +74,16 @@ Furthermore, we thought it would be interesting to compare the difference betwee
 
 ## Task
 
-##### Structure of the project
-Cleaning (in common part with the other group)
-I. Descriptive analysis of the data set: exploring the data 
-II. Introduction of sentiment analysis to analyze posting behaviours
-III. Prediction of reach with Perceptron
-IV. Convolutional network to predict subreddit classification 
+### Structure of the project
+0. Cleaning (in common part with the other group)
+1. Descriptive analysis of the data set: exploring the data 
+2. Introduction of sentiment analysis to analyze posting behaviours
+3. Prediction of reach with Perceptron
+4. Convolutional network to predict subreddit classification 
 
 Due to the size and variety of elements in our dataset, we will apply a variety of methods to extract information, and may use external data to improve our analysis. However, this also implies that the performance measures of our algorithms will vary with the specific relationship under examination.
 
-## Cleaning `[clean.r]`
+## 0. Cleaning `[clean.r]`
 
 Everything related to cleaning the original dataset is defined in `clean.r`. Essentially, the script:
 
