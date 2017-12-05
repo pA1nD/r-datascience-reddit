@@ -75,12 +75,13 @@ Furthermore, we thought it would be interesting to compare the difference betwee
 ## Task
 
 ##### Structure of the project
+Cleaning (in common part with the other group)
 I. Descriptive analysis of the data set: exploring the data 
 II. Introduction of sentiment analysis to analyze posting behaviours
 III. Prediction of reach with Perceptron
 IV. Convolutional network to predict subreddit classification 
 
-Due to the size and variety of elements in our dataset, we will apply a variety of methods to extract information, and may use external data to improve our analysis. However, this also implies that the performance measures of our ML algorithms will vary with the specific relationship under examination.
+Due to the size and variety of elements in our dataset, we will apply a variety of methods to extract information, and may use external data to improve our analysis. However, this also implies that the performance measures of our algorithms will vary with the specific relationship under examination.
 
 ## Cleaning `[clean.r]`
 
@@ -96,17 +97,36 @@ Everything related to cleaning the original dataset is defined in `clean.r`. Ess
 
 After these two operations, our dataset is reduced to `3946` rows compared to the originial `31,713`, and this is further reduced to `394` upon generating the `author_score`
 
-We split the data set into `80% testing; 20% training`.
+We split the data set into `70% testing; 30% training`.
 
 ## Descriptive statistics and analysis
-<!-- further clarify -->
-### General Statistics:
 
 Here we start our examination of the dataset by looking into the relationships between the different features we have, for example:
 
 1. The distribution of upvotes and comments
 2. The correlation between upvotes and comments
 3. The distribution of posts over time
+
+I. Descriptive analysis of the data set: exploring the data (1,5 page) 
+ 
+1. Correlation Matrix: looking at multiple features 
+Alex’ code line (110-119)  insert graph 
+Interpretation: number of comments, score, and time passed all slightly correlate negatively (-0.04%) with sentiment score. Number of comments strongly correlates positively with score (as shown in the regression above)
+
+2. Analysis of various features (to be selected, you can choose the one making most sense) 
+Alex’ code line (32-44)  insert graph 
+Interpretation: the plots show a massive skew even though the data’s proportion is log10.  All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers.
+
+3. Regression: Analyze how activity, here defined as number of comments, influences score.
+Alex’ code line (61-76)  insert graph 
+interpretation: Here, we can see that an additional comment yields on average a 4.9 increase in the score number. The result is statistically significant given the low  p-value of < 2.2e-16. 
+
+4. Regression: Analyze how the time passed influences the number of upvotes. 
+Explanations: here, we log the number of upvotes because the distance between the different number of upvotes is too high and we don’t get any significant result. We also select only the posts which have more than one upvotes and focus on posts which are 7 days old because the upvotes usually happens in the next days following the posting date. 
+File: regression time passed to upvotes1  insert graph
+Interpretation: 
+For every additional day, a post gets an additional 0.09013 upvote. The result is statistically significant given the p-value < 0.02902. 
+
 
 ### Distributions
 
