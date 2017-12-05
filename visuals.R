@@ -1,6 +1,5 @@
 rm(list = ls())
 
-
 # Visuals -----------------------------------------------------------------
 library("tidyverse")
 #install.packages("igraph") 
@@ -59,7 +58,7 @@ useRtreeList <- ToListExplicit(useRtree, unname = TRUE)
 radial_diagram <- radialNetwork(useRtreeList, fontSize =9)
 radial_diagram
 # Saves network as HTML 
-saveNetwork(radial_diagram, "Radial NCR Visual.html")
+saveNetwork(radial_diagram, "Radial NRC Visual.html")
 
 # NCR Network Visual ----------------------------------------------------------
 # Preparing the nodes
@@ -99,4 +98,4 @@ network <- visNetwork(
   main = "Visual Network")
 
 # Saves the NTML
-saveNetwork(network, "NCR Network Visual.html")
+saveNetwork(network, "NRC Network Visual.html")
