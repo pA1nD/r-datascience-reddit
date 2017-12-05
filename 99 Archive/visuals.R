@@ -58,7 +58,7 @@ useRtreeList <- ToListExplicit(useRtree, unname = TRUE)
 radial_diagram <- radialNetwork(useRtreeList, fontSize =9)
 radial_diagram
 # Saves network as HTML 
-saveNetwork(radial_diagram, "Radial NRC Visual.html")
+saveNetwork(radial_diagram, "Radial_NRC_Visual.html")
 
 # NCR Network Visual ----------------------------------------------------------
 # Preparing the nodes
@@ -99,4 +99,4 @@ network <- visNetwork(
   visNodes(label=nodes$id)
 network
 # Saves the NTML
-saveNetwork(network, "NRC Network Visual.html")
+saveNetwork(network, "Network_NRC_Visual.html")
