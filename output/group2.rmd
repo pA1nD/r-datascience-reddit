@@ -69,11 +69,11 @@ Furthermore, we thought it would be interesting to compare the difference betwee
 
 ## Task
 
-From the data above, we want to do the following:
-
-1. Discover the relationships and trends between elements in our dataset (fig 1)
-2. Acquire the sentiments of words and titles via NLP
-3. Classify the sentiment of the titles of the most popular authors.
+##### Structure of the project
+I. Descriptive analysis of the data set: exploring the data 
+II. Introduction of sentiment analysis to analyze posting behaviours
+III. Prediction of reach with Perceptron
+IV. Convolutional network to predict subreddit classification 
 
 Due to the size and variety of elements in our dataset, we will apply a variety of methods to extract information, and may use external data to improve our analysis. However, this also implies that the performance measures of our ML algorithms will vary with the specific relationship under examination.
 
