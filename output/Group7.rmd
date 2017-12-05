@@ -64,10 +64,9 @@ Furthermore, we thought it would be interesting to compare the difference betwee
 ### Structure of the project
 
 1. Cleaning (in common with the other group)
-2. Descriptive analysis of the data set: Exploring the data
+2. Exploring the data: Descriptive analysis of the data set
 3. Introduction of sentiment analysis
-4. Prediction of reach with Perceptron
-5. Convolutional network to predict subreddit classification
+4. Prediction of reach with Perceptron and Convolutional network
 
 Due to the size and variety of elements in our dataset, we will apply a variety of methods to extract information, and may use external data to improve our analysis. However, this also implies that the performance measures of our algorithms will vary with the specific relationship under examination.
 
@@ -84,7 +83,7 @@ We remove all authors with the value `[deleted]`, because this is value given to
 
 After these two operations, our dataset is reduced to `3946` rows compared to the originial `31,713`, and this is further reduced to `394` upon generating the `author_score`
 
-## 2. Descriptive analysis of the data set: Exploring the data `[2_analysis.r]`
+## 2. Exploring the data: Descriptive analysis of the data set `[2_analysis.r]`
 
 ### 2.1 Analysis of comments, upvotes and posts per author:
 
@@ -155,7 +154,7 @@ Interpretation:
 For every additional day, a post gets an additional 0.09013 upvote. The result is statistically significant given the p-value < 0.02902.
 
 
-## 3. Sentiment analysis
+## 3. Sentiment analysis `[3_sentiment.r]`
 
 ###  Natural Language Processing with `tidytext`:
 
@@ -298,7 +297,7 @@ Interpretation:
 As observed on the pie chart, most Reddit users (4 out of 5 users) tend to repost exactly the same title that comes from the source title, while 12% of the users in this data set repost it in a negative way (when different in sentiment is negative) and the rest (9%) repost it in a positive way.
 
 
-### 2.3 Estimation of proportion of each sentiment in reddit titles: how to illustrate sentiment through : Radial dendrogram
+### 3.3 Estimation of proportion of each sentiment in reddit titles: how to illustrate sentiment through : Radial dendrogram
 
 There are many ways to represent and analyse the data sets, we decided to explore the beauty of our Reddit dataset in several ways. At first, we used a 'visNetwork' library to  create a node-based radial dendrogram. It requires creation of the hierarchy, so we modified our initial sentiment dataset with additional column containing the following hierarchy: Sentiment | Sentiment Detail | Word. The following diagram shows the sentiment allocation for the words used in top 50 posts.
 
@@ -309,16 +308,16 @@ knitr::include_graphics("assets/radial_dendrogram.png")
 ```
 
 
-##2.4. How the sentiments are related : network diagrame
+### 3.4 How the sentiments are related : network diagrame
 ```{r}
 
 # Tatiana's dendogram
 
 ```
 
-#### 4. Perceptron classification:
+## 4. Perceptron classification  `[2_models.r]`
 
-## 4.1. Machine learning with Perceptron: prediction of a successful post based on 3 features
+### 4.1 Machine learning with Perceptron: prediction of a successful post based on 3 features
 
 Feature 1: sentiment of the post (afinn dictionnary)
 Feature 2: length of the post (number of characters)
@@ -345,5 +344,6 @@ This splits the data in X% successful posts and X% not successful posts. Then, w
 
 # Discussion on the implementation
 
+### 4.2 Convolutional network to predict subreddit classification
 
-\newpage
+
