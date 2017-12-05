@@ -5,41 +5,21 @@ date: "December 5, 2017"
 output: pdf_document
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(readr)
 library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(MASS)
+library(modelr)
+library(forcats)
+
+D <- read_csv("../data/clean_posts_sent.csv")
+D2 <- read_csv("../data/clean_posts.csv")
 ```
-
-```{r regression, echo=FALSE, fig.height=3, fig.width=4, message=FALSE}
-D <- read_csv("./data/clean_posts_sent.csv")
-xlab= 'Number Of Comments'
-ylab='Score Number'
-
-ggplot(D) +
-  # scatterplot
-  geom_point(aes(num_comments, score), color = "green4") +
-
-  #add curve that shows statistical relationship between variables
-  geom_smooth(aes(num_comments, score), method = "lm" ,color = "red3") +
-  
-  labs(x = xlab, y = ylab,
-       title = "Reg: Comment Number vs. Score Number") +
-  
-  theme(title=element_text(size=8, face="bold"),
-    axis.text=element_text(size=6),
-        axis.title=element_text(size=6,face="bold"))
-
-
-# Estimator results
-# reg = lm(D$score ~ D$num_comments)
-# summary(reg)
-```
-
 
 \newpage
-
 ## Goal
 
 Analyze reddit news posts because they give us a lot of information about what is important to society at a particular time. We use reddit because it is one of the most popular websites in the world and has a very active user community, with 1.6 billion users. The news subreddit alone has 70,000 posts in a month.
@@ -71,18 +51,20 @@ Due to an issue with the API, no downvote data is given to us. Thus the `score` 
 
 Furthermore, we thought it would be interesting to compare the difference between the user-generated title and the Actual title posted by the news agency. For this, a (scrapy)[https://scrapy.org/] spider was created to crawl all the (cleaned) URLs and retrieve the title. We think this was rather successful since it retreived `24,045` titles form about `31,713` cleaned posts. This is saved as `titles.csv`.
 
+\newpage
 ## Task
 
 ### Structure of the project
-0. Cleaning (in common part with the other group)
-1. Descriptive analysis of the data set: exploring the data 
-2. Introduction of sentiment analysis to analyze posting behaviours
-3. Prediction of reach with Perceptron
-4. Convolutional network to predict subreddit classification 
+
+1. Cleaning (in common with the other group)
+2. Descriptive analysis of the data set: Exploring the data 
+3. Introduction of sentiment analysis
+4. Prediction of reach with Perceptron
+5. Convolutional network to predict subreddit classification
 
 Due to the size and variety of elements in our dataset, we will apply a variety of methods to extract information, and may use external data to improve our analysis. However, this also implies that the performance measures of our algorithms will vary with the specific relationship under examination.
 
-## 0. Cleaning `[clean.r]`
+## 1. Cleaning `[1_clean.r]`
 
 Everything related to cleaning the original dataset is defined in `clean.r`. Essentially, the script:
 
@@ -95,22 +77,81 @@ We remove all authors with the value `[deleted]`, because this is value given to
 
 After these two operations, our dataset is reduced to `3946` rows compared to the originial `31,713`, and this is further reduced to `394` upon generating the `author_score`
 
-I. Exploring the data: Descriptive analysis of the data set
+## 2. Descriptive analysis of the data set: Exploring the data `[2_analysis.r]`
 
-##1. Analysis of various features (to be selected) you can choose the one making most sense) 
-Alex’ code line (32-44)  insert graph 
-Interpretation: the plots show a massive skew even though the data’s proportion is log10.  All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the models. 
+### 2.1 Analysis of comments, upvotes and posts per author:
 
-##2. Regression: Analyze how activity, here defined as number of comments, influences score.
-Alex’ code line (61-76)  insert graph 
-interpretation: Here, we can see that an additional comment yields on average a 4.9 increase in the score number. The result is statistically significant given the low  p-value of < 2.2e-16. 
+Since the data is massively skewed, we set the proportion as log10.
 
-##3. Regression determining the effect of features on up votes and number of comments
-#Tatiana's regression
+```{r echo=FALSE, fig.height=4, message=FALSE, fig.align="center"}
 
-4. Regression: Analyze how the time passed influences the number of upvotes. 
+activity_per_author = D %>% group_by(author) %>% count(author) #checking out many articles
+activity_per_author = activity_per_author %>% filter(author!='[deleted]') #cutting out the deleted ones
+
+par(mfrow=c(2,3))
+
+boxplot(log10(D$num_comments+1), main="Comments", xlab="n = 15400")
+
+boxplot(log10(D$score+1), main= "Score", xlab = "n = 15400")
+
+boxplot(log10(activity_per_author$n), main='Posts per author', xlab= "n = 5799")
+
+hist(log10(x=D$num_comments+1),main = "Number of comments", col = 'red', xlab ="log10(Number of Comments + 1)")
+
+hist(log10(x=D$score+1),main = "Number of upvotes", col='red', xlab = "log10(Score Number + 1)")
+
+hist(log10(activity_per_author$n), main = 'Posts per author', col = 'red', xlab = "log10(activity per author)")
+
+
+```
+
+Interpretation: the plots show a massive skew even though the data’s proportion is log10. All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the models. 
+
+### 2.2 Regression: Analyze how activity, here defined as number of comments, influences score.
+
+```{r regression, echo=FALSE, fig.height=3, fig.width=4, message=FALSE, fig.align="center"}
+xlab= 'Number Of Comments'
+ylab='Score Number'
+
+ggplot(D) +
+  geom_point(aes(num_comments, score), color = "green4") +
+  geom_smooth(aes(num_comments, score), method = "lm" ,color = "red3") +
+  labs(x = xlab, y = ylab,
+       title = "Reg: Comment Number vs. Score Number") +
+  theme(title=element_text(size=8, face="bold"),
+    axis.text=element_text(size=6),
+        axis.title=element_text(size=6,face="bold"))
+```
+
+Interpretation: Here, we can see that an additional comment yields on average a 4.9 increase in the score number. The result is statistically significant given the low  p-value of < 2.2e-16. 
+
+### 2.3 Regression determining the effect of features on up votes and number of comments
+
+```{r}
+# Tatiana's regression
+
+```
+
+### 2.4 Regression: Analyze how the time passed influences the number of upvotes. 
+
 Explanations: here, we log the number of upvotes because the distance between the different number of upvotes is too high and we don’t get any significant result. We also select only the posts which have more than one upvotes and focus on posts which are 7 days old because the upvotes usually happens in the next days following the posting date. 
-File: regression time passed to upvotes1  insert graph
+
+```{r echo=FALSE, message=FALSE, fig.height=3, fig.width=4, fig.align="center"}
+D2 <- D2 %>%
+  mutate(index_author = 1:nrow(D2))
+
+new_clean_2variables <- D2 %>%
+  dplyr::select(ups, time_passed_days) %>%
+  filter(time_passed_days < 21) %>%
+  filter(ups > 1)  %>%
+  mutate(ups = log(ups))
+
+ggplot(new_clean_2variables, aes(x = time_passed_days, y = ups)) +
+  geom_point() +
+  stat_smooth(method = "lm", col = "red")
+
+```
+
 Interpretation: 
 For every additional day, a post gets an additional 0.09013 upvote. The result is statistically significant given the p-value < 0.02902. 
 
