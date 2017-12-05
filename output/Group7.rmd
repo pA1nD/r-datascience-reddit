@@ -300,16 +300,16 @@ As observed on the pie chart, most Reddit users (4 out of 5 users) tend to repos
 There are many ways to represent and analyse the data sets, we decided to explore the beauty of our Reddit dataset in several ways. At first, we used a 'visNetwork' library to  create a node-based radial dendrogram. It requires creation of the hierarchy, so we modified our initial sentiment dataset with additional column containing the following hierarchy: Sentiment | Sentiment Detail | Word. The following diagram shows the sentiment allocation for the words used in top 50 posts.
 
 [It's interactive. Click here to try it out online.](https://pa1nd.github.io/r-datascience-reddit/Radial_NRC_Visual.html)
+[You can also see the online network diagram here](https://github.com/pA1nD/r-datascience-reddit/blob/master/docs/Network_NRC_Visual.html)
 
 ```{r echo=FALSE, message=FALSE, out.width="200px", fig.align="center"}
 knitr::include_graphics("assets/radial_dendrogram.png")
 ```
 
 
-### 3.4 How the sentiments are related : network diagrame
-```{r}
-
-# Tatiana's dendogram
+### 3.4 How the sentiments are related : network diagram
+```{r echo=FALSE, message=FALSE, out.width="200px", fig.align="center"}
+knitr::include_graphics("assets/network_diagram.png")
 
 ```
 
@@ -324,21 +324,23 @@ Feature 3: Posting time (within a day)
 In this part, the three features illustrated above will be used to predict whether a post is successful or not. First, we define a successful post as a post getting at least 2 likes.  
 This splits the data in X% successful posts and X% not successful posts. Then, we prepare the data by assigning every successful post the category 1 and every non successful post the category -1. After this, we keep only the posting time in hours as well as the sentiment of each title. The Training data is then split in 70% training and 30% testing.
 
-# Let's have a look at the training
+### Let's have a look at the training
 
+The result of the perceptron 
 ```{r}
 
 #show the learning effect
 
 ```
 
-# Performance of the algorithm
+### Performance of the algorithm
 
 ```{r}
 
 ##summary of results for non classified
 
 ```
+
 
 # Discussion on the implementation
 
