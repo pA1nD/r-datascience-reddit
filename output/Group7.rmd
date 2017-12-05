@@ -116,58 +116,82 @@ Interpretation:
 For every additional day, a post gets an additional 0.09013 upvote. The result is statistically significant given the p-value < 0.02902. 
 
 
-#### II. Sentiment analysis 
+#### 2. Sentiment analysis 
 
 ##  Natural Language Processing with `tidytext`:
 
 In this part, we will use 2 different libraries: NRC and Afinn in order to compute the sentiment of each word of the data set and ultimately be able to compute the sentiment of the different titles. These 2 libraries will be used for two very different purposes, which will be illustrated in the following examples. 
 
 
-##1. Histogram of sentiment analysis of the data set using AFINN OR NRC?? alex part
+##2.1. Histogram of sentiment analysis of the data set using AFINN OR NRC?? alex part
+
+```{r}
+
+histogram of positive and negative + choose the 3D pie chart (next to each other?)
+
+```
 
 Interpretation:  
 
-##2. Analyze posting behavior with sentiment analysis using Afinn:  
+##2.2. Analyze posting behavior with sentiment analysis using Afinn:  
 In this part, the goal is to analyze whether people interpret news in a positive or negative way when reposting a news. This is done by analyzing the difference of sentiment level between the source title (title displayed on a news website such as on times.com) and the actual title of the reddit user's post. 
 
-Approach: to do this, source titles have been retrieved with the help of their URL, then the sentiment score on both title lists has been calculated with the help of the Afinn lexicon assigning a weight between `-5 < weight < 5` for every word. We chose Afinn because it ranks the sentiment on a scala, making it easier to compare. Finally, the difference has been computed which enables to get some insights as seen in the following graph: 
+Approach: to do this, source titles have been retrieved with the help of their URL, then the sentiment score on both title lists has been calculated with the help of the Afinn lexicon assigning a weight between `-5 < weight < 5` for every word. We chose Afinn because it ranks the sentiment on a scala, making it easier to compare. Finally, the difference has been computed which enables to get some insights as seen in the following graphics: the histogram shows the proportions of posts changed, positive or negative while the 3D chart illustrates the percentage.
 
-Compute 2 graphs from title analysis doc (Camille) --> histogram? + choose the 3D pie chart
+```{r}
+
+histogram of positive and negative + choose the 3D pie chart (next to each other?)
+
+```
 
 #Interpretation: 
 As observed on the pie chart, most Reddit users (4 out of 5 users) tend to repost exactly the same title that comes from the source title, while 12% of the users in this data set repost it in a negative way (when different in sentiment is negative) and the rest (9%) repost it in a positive way. 
 
 
-##3.	Estimation of proportion of each sentiment in reddit titles: how to illustrate sentiment through : Radial dendrogram
+##2.3.	Estimation of proportion of each sentiment in reddit titles: how to illustrate sentiment through : Radial dendrogram
 
-##4. How the sentiments are related : network diagrame
+```{r}
+Tatiana's Radial dendrogram
+```
 
+##2.4. How the sentiments are related : network diagrame
+```{r}
 
-#### III. Perceptron classification: 
+Tatiana's dendogram
 
-##1. Machine learning with Perceptron: prediction of a successful post based on 3 features
-In this part, 3 features, namely: the sentiment of the post, the length of the post and the posting time in the day will be used to predict whether a post is successful or not. 
-First, we defined a successful post as a post getting at least 2 likes.  
-This splits the data in successful posts: X% and not successful posts: X%
+```
 
+#### 4. Perceptron classification: 
+
+## 4.1. Machine learning with Perceptron: prediction of a successful post based on 3 features
+
+Feature 1: sentiment of the post (afinn dictionnary)
+Feature 2: length of the post (number of characters)
+Feature 3: Posting time (within a day)
+
+In this part, the three features illustrated above will be used to predict whether a post is successful or not. First, we define a successful post as a post getting at least 2 likes.  
+This splits the data in X% successful posts and X% not successful posts. Then, we prepare the data by assigning every successful post the category 1 and every non successful post the category -1. After this, we keep only the posting time in hours as well as the sentiment of each title. The Training data is then split in 70% training and 30% testing. 
+
+# Let's have a look at the training 
+
+```{r}
+
+histogram of positive and negative + choose the 3D pie chart (next to each other?)
+
+```
+
+# Performance of the algorithm 
+
+```{r}
+
+histogram of positive and negative + choose the 3D pie chart (next to each other?)
+
+```
+
+# Discussion on the implementation
 
 
 \newpage
-
-## Machine Learning
-
-### Overview
-
-Reddit, being one of the most popular websites on the internet has a very wide reach. We think that being able to classify a post on whether it is good or bad is the first step in being able to determine/study how to make a good post. Since we are analyzing a news dataset, the value this brings is to easily determine what topics are relevant to people at a certain time period, based on the assumption that good posts will generate more upvotes and/or comments.
-
-Thus, for each algorithm, we will outline the following:
-
-1. An overview of the algorithm
-2. Task: What is the task to be solved, and why is it relevant?
-3. Experiece: How does the training look?
-4. Performance: By what measures to we determine the success or failure of our algorithm?
-5. A discussion on the implementation
-
 
 
 
