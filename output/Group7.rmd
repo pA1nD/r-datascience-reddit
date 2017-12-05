@@ -354,4 +354,6 @@ This will build on a example from Microsoft as part of the [Cortana Intelligence
 The idea of using deep learning for text classification at character level came first in 2015 with the Crepe model.
 After experimenting with multiple approaches, this seems to be a promising way. But as the test shows, both, setting up the right hardware and getting to convergence are big problems.
 
-#### Hardware
+#### Data and Hardware
+
+We are using a VM on Azure with 4 x K80. And 224 GB Ram. It will take around 5 working days for Microsoft to provide the machine. We use Google BigQuery to download the subreddit data.

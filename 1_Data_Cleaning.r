@@ -47,7 +47,7 @@ df <- df %>%
 # Function splitting the date into smaller increments
 calc_numDate = function(df, col = "Date") {
   col = df[[col]]
-  
+
   df = df %>%
     mutate(
       year = as.integer(str_sub(col, 1, 4)),
