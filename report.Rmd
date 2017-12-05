@@ -1,0 +1,38 @@
+---
+title: "Analysis of post reach and posting behaviours"
+author: "Reddit group"
+date: "4 December 2017"
+output: pdf_document
+---
+[Github link with codes](https://github.com/pA1nD/r-datascience-reddit)
+
+### Project description 
+
+This project intends to find out the posting behaviours of users on Reddit and the influence of post characteristics on the reach of posts.     
+
+##### Structure of the project
+I. Descriptive analysis of the data set: exploring the data 
+II. Introduction of sentiment analysis to analyze posting behaviours
+III. Prediction of reach with Perceptron
+IV. Convolutional network to predict subreddit classification 
+
+I. Descriptive analysis of the data set: exploring the data (1,5 page) 
+ 
+1. Correlation Matrix
+Alex’ code line (110-119)  insert graph 
+Interpretation: number of comments, score, and time passed all slightly correlate negatively (-0.04%) with sentiment score. Number of comments strongly correlates positively with score (as shown in the regression above)
+
+2. Analysis of various features (to be selected, you can choose the one making most sense) 
+Alex’ code line (32-44)  insert graph 
+Interpretation: the plots show a massive skew even though the data’s proportion is log10.  All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers.
+
+3. Regression: Analyze how activity, here defined as number of comments, influences score.
+Alex’ code line (61-76)  insert graph 
+interpretation: Here, we can see that an additional comment yields on average a 4.9 increase in the score number. The result is statistically significant given the low  p-value of < 2.2e-16. 
+
+4. Regression: Analyze how the time passed influences the number of upvotes. 
+Explanations: here, we log the number of upvotes because the distance between the different number of upvotes is too high and we don’t get any significant result. We also select only the posts which have more than one upvotes and focus on posts which are 7 days old because the upvotes usually happens in the next days following the posting date. 
+File: regression time passed to upvotes1  insert graph
+Interpretation: 
+For every additional day, a post gets an additional 0.09013 upvote. The result is statistically significant given the p-value < 0.02902. 
+
