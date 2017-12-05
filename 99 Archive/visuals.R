@@ -95,7 +95,8 @@ network <- visNetwork(
   links,
   width = "100%",
   height = "500px",
-  main = "Visual Network")
-
+  main = "Visual Network") %>%
+  visNodes(label=nodes$id)
+network
 # Saves the NTML
 saveNetwork(network, "NRC Network Visual.html")

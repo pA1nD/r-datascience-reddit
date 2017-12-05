@@ -15,6 +15,9 @@ library(MASS)
 library(modelr)
 library(forcats)
 
+library(tidytext)
+
+
 D <- read_csv("../data/clean_posts_sent.csv")
 D2 <- read_csv("../data/clean_posts.csv")
 ```
@@ -22,13 +25,17 @@ D2 <- read_csv("../data/clean_posts.csv")
 \newpage
 ## Goal
 
-Analyze reddit news posts because they give us a lot of information about what is important to society at a particular time. We use reddit because it is one of the most popular websites in the world and has a very active user community, with 1.6 billion users. The news subreddit alone has 70,000 posts in a month.
+Reddit is a famous American social news aggregation and discussion website with a community of 1.6 billion users. The members post content on the website and it is then voted up or down by other members of the community. This concept is very interesting since it gives a lot of information on what people are interested in and what matters for them at a particular point in time. Thus, it is the reason why we chose to work with Reddit data.  
 
-We believe that the posts of the top authors (authors that have the most posts) are representative of the community since their content should be varied. Furthermore, given the variety of news posts and the sentiments associated with them (there is always good & bad news) we think that there should be a correlation between good news and positive sentiments and bad news with negative sentiments.
+For the project, our group is particularly interested in the reach of a comment defined by its number of upvotes and comments. A second pillar of the project is based on Natural Language Processing based on the post content in order to extract meaningful information from the users' behavior and from the posts content.
 
-We can assume that a particular author may lean towards a more positive or negative sentiment - we thus assign a variable `author_score` to represent how positive or negative a particular author is. This measure is calculaetd as the *summed sentiments of all posts of this particular author* , the question now becomes:
+In this paper, we first start to analyze the data set by showing the distribution of important post features, we then look at how the number of comments influences the upvotes and how the time passed since posting time impacts the change in number of upvotes.
 
-**For each post, can we determine whether their post will be well liked, given the author's general sentiment?**. Our hypothesis is that posts with a positive sentiment will be received better than those with a negative one, so authors that have a generally positive sentiment would have much more upvotes (positive correlation between `author_score` and `like_score`)
+Then, we put emphasis on Natural Language Processing in order to analyze the users' behavior and the posts. We first describe the sentiment of the data and show how the authors tend to repost news posts on Reddit. We then estimate the proportion of each sentiment in reddit titles and how the posts' sentiments are related to each other.
+
+In a third part, we apply the perceptron model to classify successful posts based on posts' features. Finally,
+
+The output of the paper gives a great insight in the drivers of the reach of a post and how people post on Reddit.    
 
 ## Data
 
@@ -57,10 +64,9 @@ Furthermore, we thought it would be interesting to compare the difference betwee
 ### Structure of the project
 
 1. Cleaning (in common with the other group)
-2. Descriptive analysis of the data set: Exploring the data 
+2. Exploring the data: Descriptive analysis of the data set
 3. Introduction of sentiment analysis
-4. Prediction of reach with Perceptron
-5. Convolutional network to predict subreddit classification
+4. Prediction of reach with Perceptron and Convolutional network
 
 Due to the size and variety of elements in our dataset, we will apply a variety of methods to extract information, and may use external data to improve our analysis. However, this also implies that the performance measures of our algorithms will vary with the specific relationship under examination.
 
@@ -77,14 +83,13 @@ We remove all authors with the value `[deleted]`, because this is value given to
 
 After these two operations, our dataset is reduced to `3946` rows compared to the originial `31,713`, and this is further reduced to `394` upon generating the `author_score`
 
-## 2. Descriptive analysis of the data set: Exploring the data `[2_analysis.r]`
+## 2. Exploring the data: Descriptive analysis of the data set `[2_analysis.r]`
 
 ### 2.1 Analysis of comments, upvotes and posts per author:
 
 Since the data is massively skewed, we set the proportion as log10.
 
 ```{r echo=FALSE, fig.height=4, message=FALSE, fig.align="center"}
-
 activity_per_author = D %>% group_by(author) %>% count(author) #checking out many articles
 activity_per_author = activity_per_author %>% filter(author!='[deleted]') #cutting out the deleted ones
 
@@ -105,7 +110,7 @@ hist(log10(activity_per_author$n), main = 'Posts per author', col = 'red', xlab 
 
 ```
 
-Interpretation: the plots show a massive skew even though the data’s proportion is log10. All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the models. 
+Interpretation: the plots show a massive skew even though the data’s proportion is log10. All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the models.
 
 ### 2.2 Regression: Analyze how activity, here defined as number of comments, influences score.
 
@@ -123,18 +128,11 @@ ggplot(D) +
         axis.title=element_text(size=6,face="bold"))
 ```
 
-Interpretation: Here, we can see that an additional comment yields on average a 4.9 increase in the score number. The result is statistically significant given the low  p-value of < 2.2e-16. 
+Interpretation: Here, we can see that an additional comment yields on average a 4.9 increase in the score number. The result is statistically significant given the low  p-value of < 2.2e-16.
 
-### 2.3 Regression determining the effect of features on up votes and number of comments
+### 2.3 Regression: Analyze how the time passed influences the number of upvotes.
 
-```{r}
-# Tatiana's regression
-
-```
-
-### 2.4 Regression: Analyze how the time passed influences the number of upvotes. 
-
-Explanations: here, we log the number of upvotes because the distance between the different number of upvotes is too high and we don’t get any significant result. We also select only the posts which have more than one upvotes and focus on posts which are 7 days old because the upvotes usually happens in the next days following the posting date. 
+Explanations: here, we log the number of upvotes because the distance between the different number of upvotes is too high and we don’t get any significant result. We also select only the posts which have more than one upvotes and focus on posts which are 7 days old because the upvotes usually happens in the next days following the posting date.
 
 ```{r echo=FALSE, message=FALSE, fig.height=3, fig.width=4, fig.align="center"}
 D2 <- D2 %>%
@@ -152,86 +150,200 @@ ggplot(new_clean_2variables, aes(x = time_passed_days, y = ups)) +
 
 ```
 
-Interpretation: 
-For every additional day, a post gets an additional 0.09013 upvote. The result is statistically significant given the p-value < 0.02902. 
+Interpretation:
+For every additional day, a post gets an additional 0.09013 upvote. The result is statistically significant given the p-value < 0.02902.
 
 
-#### 2. Sentiment analysis 
+## 3. Sentiment analysis `[3_sentiment.r]`
 
-##  Natural Language Processing with `tidytext`:
+###  Natural Language Processing with `tidytext`:
 
-In this part, we will use 2 different libraries: NRC and Afinn in order to compute the sentiment of each word of the data set and ultimately be able to compute the sentiment of the different titles. These 2 libraries will be used for two very different purposes, which will be illustrated in the following examples. 
+In this part, we will use 2 different libraries: NRC and Afinn in order to compute the sentiment of each word of the data set and ultimately be able to compute the sentiment of the different titles. These 2 libraries will be used for two very different purposes, which will be illustrated in the following examples.
 
 
-##2.1. Histogram of sentiment analysis of the data set using AFINN OR NRC?? alex part
+### 3.1 Histogram of sentiment analysis of the data set using the Afinn dictionnary
 
-```{r}
+```{r echo=FALSE, fig.height=2, fig.width=5, message=FALSE, fig.align="center"}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+ggplot(D, aes(x=sent_score))+
+  geom_histogram(color="black", fill='white')+
+  labs(x="Sentiment Score Per Post, n= 15400", y = 'Frequency', title= 'Histogram: Sentiment In The Set')+
+  geom_vline(aes(xintercept=mean(D$sent_score), color='mean: -0.1513'), show.legend = TRUE, size=2)+
+  geom_vline(aes(xintercept=median(D$sent_score), color='median: 0.0000'), show.legend = TRUE, size=1)+
+  geom_vline(aes(xintercept=quantile(D$sent_score,0.25), color='1st quantile: -2.0000'), show.legend = TRUE, size=1)+
+  geom_vline(aes(xintercept=quantile(D$sent_score,0.75), color='3rd quantile: 2.0000'), show.legend = TRUE, size=1)
 
 ```
 
 Interpretation:  
 
-##2.2. Analyze posting behavior with sentiment analysis using Afinn:  
-In this part, the goal is to analyze whether people interpret news in a positive or negative way when reposting a news. This is done by analyzing the difference of sentiment level between the source title (title displayed on a news website such as on times.com) and the actual title of the reddit user's post. 
+### 3.2 Analyze posting behavior with sentiment analysis using Afinn:  
+In this part, the goal is to analyze whether people interpret news in a positive or negative way when reposting a news. This is done by analyzing the difference of sentiment level between the source title (title displayed on a news website such as on times.com) and the actual title of the reddit user's post.
 
-Approach: to do this, source titles have been retrieved with the help of their URL, then the sentiment score on both title lists has been calculated with the help of the Afinn lexicon assigning a weight between `-5 < weight < 5` for every word. We chose Afinn because it ranks the sentiment on a scala, making it easier to compare. Finally, the difference has been computed which enables to get some insights as seen in the following graphics: the histogram shows the proportions of posts changed, positive or negative while the 3D chart illustrates the percentage.
+Approach: to do this, source titles have been retrieved with the help of their URL, then the sentiment score on both title lists has been calculated with the help of the Afinn lexicon assigning a weight between `-5 < weight < 5` for every word. We chose Afinn because it ranks the sentiment on a scala, making it easier to compare. Finally, the difference has been computed which enables to get some insights as seen in the following graphics: the histogram shows the proportions of posts unchanged, positive or negative while the 3D chart illustrates the percentage of these classes.
 
-```{r}
+```{r echo=FALSE, fig.height=3, fig.width=4, fig.align="center", message=FALSE, warning=FALSE}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+library(plyr)
+library(plotrix)
+
+D2 <- D2 %>%
+  mutate(index_author = 1:nrow(D2))
+
+
+# Retrieve Data of URL-----------------------------------------------------------------
+
+TITLE_NEWS <- read_delim("../data/titles.csv", "; ", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+
+
+# Clean, add legend and merge tabs with URL  ----------------------------------------------------
+
+names(TITLE_NEWS)[1]<-paste("Source URL")
+names(TITLE_NEWS)[2]<-paste("source title")
+names(D2)[5]<-paste("Source URL")
+
+TITLE_NEWS <- TITLE_NEWS %>%
+  dplyr::select("Source URL", "source title")
+
+TITLE_merged <- inner_join(TITLE_NEWS, D2, by = "Source URL")
+
+
+# create new tab with only relevant columns  ------------------------------
+
+Title_analysis <-
+  TITLE_merged %>% dplyr::select("author",
+                        "domain",
+                        "Source URL",
+                        "num_comments",
+                        "score",
+                        "title",
+                        "source title",
+                        "period_posted",
+                        "period_retrieved",
+                        "index_author")
+
+
+# Separate the data (in words) so that the library Afinn can be applied ---------------------
+
+Title <- TITLE_merged %>% dplyr:: select("title", "index_author")
+Source_title <- TITLE_merged %>% dplyr:: select("source title", "index_author")
+
+title_words <- Title %>%
+  unnest_tokens(word, title)
+
+title_source_words <- Source_title %>%
+  unnest_tokens(word, "source title")
+
+
+# Compute the sentimentanalysis on the words --------------------------
+
+# titles
+afinn <- title_words %>%
+  inner_join(get_sentiments("afinn"))
+
+afinn_grouped_title <- title_words %>%
+  inner_join(get_sentiments("afinn")) %>%
+  group_by(index_author) %>%
+  dplyr::summarise(sentiment = sum(score))
+
+# source titles
+afinn_source <- title_source_words %>%
+  inner_join(get_sentiments("afinn"))
+
+afinn_grouped_source_title <- title_source_words %>%
+  inner_join(get_sentiments("afinn")) %>%
+  group_by(index_author) %>%
+  dplyr::summarise(sentiment_source = sum(score))
+
+merged_sentiment_titles <- inner_join(afinn_grouped_title, afinn_grouped_source_title, by = "index_author")
+
+# Plot the difference between both
+merged_sentiment_titles <- merged_sentiment_titles %>%
+  dplyr::mutate(interpretation_level = sentiment - sentiment_source)
+
+
+merged_sentiment_titles <- merged_sentiment_titles %>%
+  dplyr::mutate( interpretation1 = merged_sentiment_titles$interpretation_level * 0)
+
+for (i in 1:nrow(merged_sentiment_titles)) {
+  if (merged_sentiment_titles$interpretation_level[i] < 0) {
+    merged_sentiment_titles$interpretation1[i] <- "Negative"
+  } else if (merged_sentiment_titles$interpretation_level[i] > 0) {
+    merged_sentiment_titles$interpretation1[i] <- "Positive"
+  } else if (merged_sentiment_titles$interpretation_level[i] == 0) {
+    merged_sentiment_titles$interpretation1[i] <- "No change"
+  } else
+    { "NA" }
+  }
+
+p = length(which(merged_sentiment_titles$interpretation1 == "Positive"))
+n = length(which(merged_sentiment_titles$interpretation1 == "Negative"))
+nc = length(which(merged_sentiment_titles$interpretation1 == "No change"))
+
+number_of_interpretation <-c(p, n, nc)
+kind_of_interpretation <- c("positive", "negative", "no change")
+percentage <- round(number_of_interpretation/sum(number_of_interpretation)*100)
+labels <- paste(kind_of_interpretation, percentage)
+labels <- paste(labels,"%",sep="")
+
+pie3D(number_of_interpretation,labels=labels,explode=0.5,
+      main="Pie Chart 3D of interpretation levels ",
+      col=c("brown","#ddaa00","pink","#dd00dd"))
+
 
 ```
 
-#Interpretation: 
-As observed on the pie chart, most Reddit users (4 out of 5 users) tend to repost exactly the same title that comes from the source title, while 12% of the users in this data set repost it in a negative way (when different in sentiment is negative) and the rest (9%) repost it in a positive way. 
+Interpretation:
+As observed on the pie chart, most Reddit users (4 out of 5 users) tend to repost exactly the same title that comes from the source title, while 12% of the users in this data set repost it in a negative way (when different in sentiment is negative) and the rest (9%) repost it in a positive way.
 
 
-##2.3.	Estimation of proportion of each sentiment in reddit titles: how to illustrate sentiment through : Radial dendrogram
+### 3.3 Estimation of proportion of each sentiment in reddit titles: how to illustrate sentiment through : Radial dendrogram
 
-```{r}
-Tatiana's Radial dendrogram
+There are many ways to represent and analyse the data sets, we decided to explore the beauty of our Reddit dataset in several ways. At first, we used a 'visNetwork' library to  create a node-based radial dendrogram. It requires creation of the hierarchy, so we modified our initial sentiment dataset with additional column containing the following hierarchy: Sentiment | Sentiment Detail | Word. The following diagram shows the sentiment allocation for the words used in top 50 posts.
+
+[It's interactive. Click here to try it out online.](https://pa1nd.github.io/r-datascience-reddit/Radial_NRC_Visual.html)
+
+```{r echo=FALSE, message=FALSE, out.width="200px", fig.align="center"}
+knitr::include_graphics("assets/radial_dendrogram.png")
 ```
 
-##2.4. How the sentiments are related : network diagrame
+
+### 3.4 How the sentiments are related : network diagrame
 ```{r}
 
-Tatiana's dendogram
+# Tatiana's dendogram
 
 ```
 
-#### 4. Perceptron classification: 
+## 4. Perceptron classification  `[2_models.r]`
 
-## 4.1. Machine learning with Perceptron: prediction of a successful post based on 3 features
+### 4.1 Machine learning with Perceptron: prediction of a successful post based on 3 features
 
 Feature 1: sentiment of the post (afinn dictionnary)
 Feature 2: length of the post (number of characters)
 Feature 3: Posting time (within a day)
 
 In this part, the three features illustrated above will be used to predict whether a post is successful or not. First, we define a successful post as a post getting at least 2 likes.  
-This splits the data in X% successful posts and X% not successful posts. Then, we prepare the data by assigning every successful post the category 1 and every non successful post the category -1. After this, we keep only the posting time in hours as well as the sentiment of each title. The Training data is then split in 70% training and 30% testing. 
+This splits the data in X% successful posts and X% not successful posts. Then, we prepare the data by assigning every successful post the category 1 and every non successful post the category -1. After this, we keep only the posting time in hours as well as the sentiment of each title. The Training data is then split in 70% training and 30% testing.
 
-# Let's have a look at the training 
+# Let's have a look at the training
 
 ```{r}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+#show the learning effect
 
 ```
 
-# Performance of the algorithm 
+# Performance of the algorithm
 
 ```{r}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+##summary of results for non classified
 
 ```
 
 # Discussion on the implementation
 
-
-\newpage
-
+### 4.2 Convolutional network to predict subreddit classification
 
 

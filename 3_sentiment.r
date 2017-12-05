@@ -7,10 +7,6 @@ library(modelr)
 library(forcats)
 library(readr)
 
-library(tidytext)
-library(plyr)
-library(plotrix)
-
 
 # Load Data
 D <- read_csv("./data/clean_posts_sent.csv")
@@ -23,8 +19,6 @@ View(D)
 # (the mean is near zero and almost lines up with the median)
 
 summary(D$sent_score) # checking the stats
-
-# CHECK THAT!
 
 ggplot(D, aes(x=sent_score))+
   geom_histogram(color="black", fill='white')+
@@ -78,6 +72,7 @@ Title_analysis <-
 # tidytext contains several sentiment lexicons. That is why we are interested in it.
 # We use the afinn library because the sentiment is split in different emotions.
 # But this one has the particularity to have a certain scale.
+library(tidytext)
 get_sentiments("afinn")
 
 
@@ -102,7 +97,7 @@ afinn <- title_words %>%
 afinn_grouped_title <- title_words %>%
   inner_join(get_sentiments("afinn")) %>%
   group_by(index_author) %>%
-  summarise(sentiment = sum(score))
+  dplyr::summarise(sentiment = sum(score))
 
 # source titles
 afinn_source <- title_source_words %>%
@@ -111,7 +106,7 @@ afinn_source <- title_source_words %>%
 afinn_grouped_source_title <- title_source_words %>%
   inner_join(get_sentiments("afinn")) %>%
   group_by(index_author) %>%
-  summarise(sentiment_source = sum(score))
+  dplyr::summarise(sentiment_source = sum(score))
 
 
 # Merge both results----------------------------------------------------------
@@ -153,7 +148,7 @@ for (i in 1:nrow(merged_sentiment_titles)) {
     merged_sentiment_titles$interpretation1[i] <- "Positive"
   } else if (merged_sentiment_titles$interpretation_level[i] == 0) {
     merged_sentiment_titles$interpretation1[i] <- "No change"
-  } else 
+  } else
     { "NA" }
   }
 
@@ -162,10 +157,9 @@ ggplot(data = merged_sentiment_titles) +
 
 
 # Plot something else  -----------------------------------------------------------
+library(plyr)
 p = length(which(merged_sentiment_titles$interpretation1 == "Positive"))
-
 n = length(which(merged_sentiment_titles$interpretation1 == "Negative"))
-
 nc = length(which(merged_sentiment_titles$interpretation1 == "No change"))
 
 number_of_interpretation <-c(p, n, nc)
@@ -177,5 +171,6 @@ labels <- paste(labels,"%",sep="")
 pie(number_of_interpretation,labels = labels, col=rainbow(length(labels)),
     main="Pie Chart of interpretation levels")
 
+library(plotrix)
 pie3D(number_of_interpretation,labels=labels,explode=0.5,
       main="Pie Chart 3D of interpretation levels ")
