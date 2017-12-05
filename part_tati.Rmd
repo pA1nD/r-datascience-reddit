@@ -25,7 +25,9 @@ Secondly, just as in real life there are multiple interpretations, a single word
 "Network_NRC_Visual.html"
 ```
 
+Link to the convolutional network: 
 
+We decided to follow an alternative way of applying the convolutional neural network, as it was recently proposed by the data scientists of Microsoft.
 
 References: 
 
