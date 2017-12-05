@@ -349,11 +349,17 @@ This splits the data in X% successful posts and X% not successful posts. Then, w
 Natural Language Processing (NLP) can also be done using deep learning. There are various approaches to NLP using CNNs.
 As the last point, we will try to use a Deep Neural Network (DNNs) to predict the subreddit classification.
 
-This will build on a example from Microsoft as part of the [Cortana Intelligence Gallery Content](https://github.com/Azure/Cortana-Intelligence-Gallery-Content). After succesfully setting up a classification, we would move on to change the CNN's last layer to perform a regression for likes instead of a classification.
-
-The idea of using deep learning for text classification at character level came first in 2015 with the Crepe model.
-After experimenting with multiple approaches, this seems to be a promising way. But as the test shows, both, setting up the right hardware and getting to convergence are big problems.
+This will build on a example from Microsoft as part of the [Cortana Intelligence Gallery Content](https://github.com/Azure/Cortana-Intelligence-Gallery-Content). After succesfully setting up a classification, we would move on to change the CNN's last layer to perform a regression for likes instead of a classification. After experimenting with multiple approaches, this seems to be a promising way. But as the test shows, both, setting up the right hardware and getting to convergence are big problems.
 
 #### Data and Hardware
 
 We are using a VM on Azure with 4 x K80. And 224 GB Ram. It will take around 5 working days for Microsoft to provide the machine. We use Google BigQuery to download the subreddit data.
+
+[The cnn folder in the github repository](https://github.com/pA1nD/r-datascience-reddit/tree/master/cnn) contains more information about how to access the data and how to setup a server. We hade to fix multiple bugs in Apaches MXNet Makefiles and Microsoft R Server. For GPU support, you have to compile everything from the sources.
+
+
+#### The model and convergence
+
+We are using a 9 layer deep convolutional neural network. The first 6 layers are convolutional layers. The last 3 are fully connected layers. As activation function, we use ReLu. We use a dropout of 0.5 in each layer. The first Kernel has a size of 7 (average word length).
+
+We use one-hot-encoding to encode sentences and create a matrix along the alphabet. This is known as "Character-level Convolutional Networks for Text Classification" and was first shown in [2015 by Xiang Zhang, Junbo Zhao, Yann LeCun](https://arxiv.org/abs/1509.01626).
