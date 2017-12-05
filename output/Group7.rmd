@@ -97,18 +97,17 @@ We remove all authors with the value `[deleted]`, because this is value given to
 After these two operations, our dataset is reduced to `3946` rows compared to the originial `31,713`, and this is further reduced to `394` upon generating the `author_score`
 
 I. Exploring the data: Descriptive analysis of the data set
- 
-1. Correlation Matrix: looking at multiple features: number of comments, score, and time passed
-Alex’ code line (110-119)  insert graph 
-Interpretation: number of comments, score, and time passed all slightly correlate negatively (-0.04%) with sentiment score. Number of comments strongly correlates positively with score (as shown in the regression above)
 
-2. Analysis of various features (to be selected, you can choose the one making most sense) 
+##1. Analysis of various features (to be selected) you can choose the one making most sense) 
 Alex’ code line (32-44)  insert graph 
-Interpretation: the plots show a massive skew even though the data’s proportion is log10.  All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the . 
+Interpretation: the plots show a massive skew even though the data’s proportion is log10.  All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the models. 
 
-3. Regression: Analyze how activity, here defined as number of comments, influences score.
+##. Regression: Analyze how activity, here defined as number of comments, influences score.
 Alex’ code line (61-76)  insert graph 
 interpretation: Here, we can see that an additional comment yields on average a 4.9 increase in the score number. The result is statistically significant given the low  p-value of < 2.2e-16. 
+
+##3. Regression determining the effect of features on up votes and number of comments
+#Tatiana's regression
 
 4. Regression: Analyze how the time passed influences the number of upvotes. 
 Explanations: here, we log the number of upvotes because the distance between the different number of upvotes is too high and we don’t get any significant result. We also select only the posts which have more than one upvotes and focus on posts which are 7 days old because the upvotes usually happens in the next days following the posting date. 
@@ -117,15 +116,34 @@ Interpretation:
 For every additional day, a post gets an additional 0.09013 upvote. The result is statistically significant given the p-value < 0.02902. 
 
 
-## II. Sentiment analysis 
+#### II. Sentiment analysis 
 
 ##  Natural Language Processing with `tidytext`:
 
-We take the sentiment of each word found in our training dataset with 2 different libraries - NRC and afinn. There 
-
-Afinn is the most useful in these classifications since it assigns a weight between `-5 < weight < 5` for every word. This is the algorithm we use for the classification algorithms that we will present later.
+In this part, we will use 2 different libraries: NRC and Afinn in order to compute the sentiment of each word of the data set and ultimately be able to compute the sentiment of the different titles. These 2 libraries will be used for two very different purposes, which will be illustrated in the following examples. 
 
 
+##1. Histogram of sentiment analysis of the data set using AFINN OR NRC?? alex part
+
+Interpretation:  
+
+##2. Analyze posting behavior with sentiment analysis using Afinn:  
+In this part, the goal is to analyze whether people interpret news in a positive or negative way when reposting a news. This is done by analyzing the difference of sentiment level between the source title (title displayed on a news website such as on times.com) and the actual title of the reddit user's post. 
+
+Approach: to do this, source titles have been retrieved with the help of their URL, then the sentiment score on both title lists has been calculated with the help of the Afinn lexicon assigning a weight between `-5 < weight < 5` for every word. We chose Afinn because it ranks the sentiment on a scala, making it easier to compare. Finally, the difference has been computed which enables to get some insights as seen in the following graph: 
+
+Compute 2 graphs from title analysis doc (Camille) --> histogram? + choose the 3D pie chart
+
+#Interpretation: 
+As observed on the pie chart, most Reddit users (4 out of 5 users) tend to repost exactly the same title that comes from the source title, while 12% of the users in this data set repost it in a negative way (when different in sentiment is negative) and the rest (9%) repost it in a positive way. 
+
+
+##3.	Estimation of proportion of each sentiment in reddit titles: how to illustrate sentiment through : Radial dendrogram
+
+##4. How the sentiments are related : network diagrame
+
+
+#### III. Prediction model with perceptron 
 
 
 \newpage
