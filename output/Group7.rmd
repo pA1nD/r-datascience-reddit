@@ -27,13 +27,11 @@ D2 <- read_csv("../data/clean_posts.csv")
 
 Reddit is a famous American social news aggregation and discussion website with a community of 1.6 billion users. The members post content on the website and it is then voted up or down by other members of the community. This concept is very interesting since it gives a lot of information on what people are interested in and what matters for them at a particular point in time. Thus, it is the reason why we chose to work with Reddit data.  
 
-For the project, our group is particularly interested in the reach of a comment defined by its number of upvotes and comments. A second pillar of the project is based on Natural Language Processing based on the post content in order to extract meaningful information from the users' behavior and from the posts content.
+Given this scope, our group is particularly in the relationship between the features of upvotes, title length and post time in our dataset. This analysis is done in conjunction with a Natural Language Processing (NLP) on the titles, because the title is naturally the main driver of the quality and reach of the post.
 
-In this paper, we first start to analyze the data set by showing the distribution of important post features, we then look at how the number of comments influences the upvotes and how the time passed since posting time impacts the change in number of upvotes.
+`Methodology:`We will apply descriptive statistics to the data to examine the relationships between the features that we are interested in. Then, we will apply sentiment analysis to generate findings on user behavior and the structure of our datasets.
 
-Then, we put emphasis on Natural Language Processing in order to analyze the users' behavior and the posts. We first describe the sentiment of the data and show how the authors tend to repost news posts on Reddit. We then estimate the proportion of each sentiment in reddit titles and how the posts' sentiments are related to each other.
-
-In a third part, we apply the perceptron model to classify successful posts based on posts' features. Finally,
+In the third and fourth parts, we apply the perceptron algorithm and a convolutional neural network (CNN) to classify successful and unsuccessful posts based on the features listed above.
 
 The output of the paper gives a great insight in the drivers of the reach of a post and how people post on Reddit.    
 
@@ -93,24 +91,24 @@ Since the data is massively skewed, we set the proportion as log10.
 activity_per_author = D %>% group_by(author) %>% count(author) #checking out many articles
 activity_per_author = activity_per_author %>% filter(author!='[deleted]') #cutting out the deleted ones
 
-par(mfrow=c(2,3))
+#par(mfrow=c(2,3))
 
-boxplot(log10(D$num_comments+1), main="Comments", xlab="n = 15400")
+#boxplot(log10(D$num_comments+1), main="Comments", xlab="n = 15400")
 
-boxplot(log10(D$score+1), main= "Score", xlab = "n = 15400")
+#boxplot(log10(D$score+1), main= "Score", xlab = "n = 15400")
 
-boxplot(log10(activity_per_author$n), main='Posts per author', xlab= "n = 5799")
+#boxplot(log10(activity_per_author$n), main='Posts per author', xlab= "n = 5799")
 
-hist(log10(x=D$num_comments+1),main = "Number of comments", col = 'red', xlab ="log10(Number of Comments + 1)")
+hist(log10(x=D$num_comments+1),main = "Number of comments", col = 'red', xlab ="log10(Number of Comments + 1)", frequency=FALSE)
 
-hist(log10(x=D$score+1),main = "Number of upvotes", col='red', xlab = "log10(Score Number + 1)")
+hist(log10(x=D$score+1),main = "Number of upvotes", col='red', xlab = "log10(Score Number + 1)", frequency=FALSE)
 
-hist(log10(activity_per_author$n), main = 'Posts per author', col = 'red', xlab = "log10(activity per author)")
+hist(log10(activity_per_author$n), main = 'Posts per author', col = 'red', xlab = "log10(activity per author)", frequency=FALSE)
 
 
 ```
 
-Interpretation: the plots show a massive skew even though the data’s proportion is log10. All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the models.
+Interpretation: the plots show a massive skew even though the data’s proportion is `log10`. All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the models.
 
 ### 2.2 Regression: Analyze how activity, here defined as number of comments, influences score.
 
@@ -132,7 +130,7 @@ Interpretation: Here, we can see that an additional comment yields on average a 
 
 ### 2.3 Regression: Analyze how the time passed influences the number of upvotes.
 
-Explanations: here, we log the number of upvotes because the distance between the different number of upvotes is too high and we don’t get any significant result. We also select only the posts which have more than one upvotes and focus on posts which are 7 days old because the upvotes usually happens in the next days following the posting date.
+Explanations: here, we log the number of upvotes because the distance between the different number of upvotes is too high and we don’t get any significant result. We also select only the posts which have more than one upvotes and focus on a one week time period because posts get most of their upvotes in the few days following their post date. This conclusion is based on the cyclicality seen in the data.
 
 ```{r echo=FALSE, message=FALSE, fig.height=3, fig.width=4, fig.align="center"}
 D2 <- D2 %>%
@@ -151,7 +149,7 @@ ggplot(new_clean_2variables, aes(x = time_passed_days, y = ups)) +
 ```
 
 Interpretation:
-For every additional day, a post gets an additional 0.09013 upvote. The result is statistically significant given the p-value < 0.02902.
+For every additional day, a post gets an additional `0.09013` upvote. The result is statistically significant given the `p-value < 0.02902`.
 
 
 ## 3. Sentiment analysis `[3_sentiment.r]`
@@ -302,16 +300,16 @@ As observed on the pie chart, most Reddit users (4 out of 5 users) tend to repos
 There are many ways to represent and analyse the data sets, we decided to explore the beauty of our Reddit dataset in several ways. At first, we used a 'visNetwork' library to  create a node-based radial dendrogram. It requires creation of the hierarchy, so we modified our initial sentiment dataset with additional column containing the following hierarchy: Sentiment | Sentiment Detail | Word. The following diagram shows the sentiment allocation for the words used in top 50 posts.
 
 [It's interactive. Click here to try it out online.](https://pa1nd.github.io/r-datascience-reddit/Radial_NRC_Visual.html)
+[You can also see the online network diagram here](https://github.com/pA1nD/r-datascience-reddit/blob/master/docs/Network_NRC_Visual.html)
 
 ```{r echo=FALSE, message=FALSE, out.width="200px", fig.align="center"}
 knitr::include_graphics("assets/radial_dendrogram.png")
 ```
 
 
-### 3.4 How the sentiments are related : network diagrame
-```{r}
-
-# Tatiana's dendogram
+### 3.4 How the sentiments are related : network diagram
+```{r echo=FALSE, message=FALSE, out.width="200px", fig.align="center"}
+knitr::include_graphics("assets/network_diagram.png")
 
 ```
 
@@ -326,21 +324,23 @@ Feature 3: Posting time (within a day)
 In this part, the three features illustrated above will be used to predict whether a post is successful or not. First, we define a successful post as a post getting at least 2 likes.  
 This splits the data in X% successful posts and X% not successful posts. Then, we prepare the data by assigning every successful post the category 1 and every non successful post the category -1. After this, we keep only the posting time in hours as well as the sentiment of each title. The Training data is then split in 70% training and 30% testing.
 
-# Let's have a look at the training
+### Let's have a look at the training
 
+The result of the perceptron
 ```{r}
 
 #show the learning effect
 
 ```
 
-# Performance of the algorithm
+### Performance of the algorithm
 
 ```{r}
 
 ##summary of results for non classified
 
 ```
+
 
 # Discussion on the implementation
 
@@ -349,7 +349,10 @@ This splits the data in X% successful posts and X% not successful posts. Then, w
 Natural Language Processing (NLP) can also be done using deep learning. There are various approaches to NLP using CNNs.
 As the last point, we will try to use a Deep Neural Network (DNNs) to predict the subreddit classification.
 
-This will build on a example from Microsoft as part of the [Cortana Intelligence Gallery Content](https://github.com/Azure/Cortana-Intelligence-Gallery-Content). After succesfully setting up a classification, we would move on to change the CNN's last layer to perform a regression for likes instead of a classification. After experimenting with multiple approaches, this seems to be a promising way. But as the test shows, both, setting up the right hardware and getting to convergence are big problems.
+This will build on a example from Microsoft as part of the [Cortana Intelligence Gallery Content](https://github.com/Azure/Cortana-Intelligence-Gallery-Content). After succesfully setting up a classification, we would move on to change the CNN's last layer to perform a regression for likes instead of a classification.
+
+The idea of using deep learning for text classification at character level came first in 2015 with the Crepe model.
+After experimenting with multiple approaches, this seems to be a promising way. But as the test shows, both, setting up the right hardware and getting to convergence are big problems.
 
 #### Data and Hardware
 

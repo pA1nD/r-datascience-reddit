@@ -5,9 +5,12 @@ library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(forcats)
-
-#load data set
+library(sqldf)
+library(chron)
 library(readr)
+library(tidytext)
+
+
 clean_posts <- read_csv("data/clean_posts.csv", local = locale(encoding="latin1"))
 
 clean_posts <- clean_posts %>%
@@ -16,8 +19,6 @@ clean_posts <- clean_posts %>%
 clean_posts_limited <- clean_posts %>%
   dplyr:: select("title_clean", "ups", "period_posted","index_author", "num_comments")
 
-#install.packages("sqldf")
-library(sqldf)
 
 clean_posts_limited <-  clean_posts_limited %>%
   mutate(time = strftime(clean_posts$period_posted, format="%H:%M:%S"))
@@ -25,8 +26,6 @@ clean_posts_limited <-  clean_posts_limited %>%
  class(clean_posts_limited$time)
  
  # turn into nurmeric format  ----------------------------------------------
- 
-library(chron)
  
  clean_posts_limited <- clean_posts_limited %>%
    mutate(time1 = as.numeric(times(clean_posts_limited$time)))
@@ -49,10 +48,7 @@ DF <- clean_posts_limited %>%
 
 # add sentiment -----------------------------------------------------------
 
-#install.packages("tidytext") # contains several sentiment lexicons  
 # define it as good post when upvote >= 2 
-
-library(tidytext)
 
 #We use afinn library because the sentiment is split in different emotions
 #But this one has the particularity to have a certain scale 
