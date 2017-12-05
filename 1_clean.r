@@ -127,26 +127,23 @@ df3_clean <- titleClean(df3)
 df4_clean <- titleClean(df4) 
 
 df_clean <- rbind(df1_clean,df2_clean,df3_clean,df4_clean)
+# write to csv
+
+write.csv(df_clean, "data/clean_posts.csv")
 
 # End stage: splitting into Training & Testing ----------------------------
 
-
-# Selecting columns that will be dropped from the complete data set
-col_to_drop <- c(
-  
-)
-
 # Separation of data into training and testing datasets
-set.seed(1)
-prep_df = function(df, percTrain){ # percTrain is a percentage of observations used for training
-  resh = sample(1:nrow(df1)) # Ransomly arranged numbers from 1 to the length of the df
-  iSplit = percTrain * nrow(df1) # Determine the i value that serves as a splitting point
-  
-  df_train = df1[1:iSplit ,] # Part of df used for training
-  df_test = df1[(iSplit + 1):nrow(df1),] # Part of df used for testing  
-  
-  nTrain = nrow(df_train) # Number of iterations is the number of rows in the df used for training
-}
+#set.seed(1)
+#prep_df = function(df, percTrain){ # percTrain is a percentage of observations used for training
+#  resh = sample(1:nrow(df1)) # Ransomly arranged numbers from 1 to the length of the df
+#  iSplit = percTrain * nrow(df1) # Determine the i value that serves as a splitting point
+#  
+#  df_train = df1[1:iSplit ,] # Part of df used for training
+#  df_test = df1[(iSplit + 1):nrow(df1),] # Part of df used for testing  
+#  
+#  nTrain = nrow(df_train) # Number of iterations is the number of rows in the df used for training
+#}
 
-prep_df(df_clean, 0.7)
+#prep_df(df_clean, 0.7)
 
