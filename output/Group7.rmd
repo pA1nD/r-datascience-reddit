@@ -33,7 +33,9 @@ In this paper, we first start to analyze the data set by showing the distributio
 
 Then, we put emphasis on Natural Language Processing in order to analyze the users' behavior and the posts. We first describe the sentiment of the data and show how the authors tend to repost news posts on Reddit. We then estimate the proportion of each sentiment in reddit titles and how the posts' sentiments are related to each other.
 
-In a third part, we apply the perceptron model to classify successful posts based on posts' features. Finally,
+In the third part, we apply the perceptron model to classify successful posts based on posts' features. 
+
+Finally,
 
 The output of the paper gives a great insight in the drivers of the reach of a post and how people post on Reddit.    
 
@@ -93,24 +95,24 @@ Since the data is massively skewed, we set the proportion as log10.
 activity_per_author = D %>% group_by(author) %>% count(author) #checking out many articles
 activity_per_author = activity_per_author %>% filter(author!='[deleted]') #cutting out the deleted ones
 
-par(mfrow=c(2,3))
+#par(mfrow=c(2,3))
 
-boxplot(log10(D$num_comments+1), main="Comments", xlab="n = 15400")
+#boxplot(log10(D$num_comments+1), main="Comments", xlab="n = 15400")
 
-boxplot(log10(D$score+1), main= "Score", xlab = "n = 15400")
+#boxplot(log10(D$score+1), main= "Score", xlab = "n = 15400")
 
-boxplot(log10(activity_per_author$n), main='Posts per author', xlab= "n = 5799")
+#boxplot(log10(activity_per_author$n), main='Posts per author', xlab= "n = 5799")
 
-hist(log10(x=D$num_comments+1),main = "Number of comments", col = 'red', xlab ="log10(Number of Comments + 1)")
+hist(log10(x=D$num_comments+1),main = "Number of comments", col = 'red', xlab ="log10(Number of Comments + 1)", frequency=FALSE)
 
-hist(log10(x=D$score+1),main = "Number of upvotes", col='red', xlab = "log10(Score Number + 1)")
+hist(log10(x=D$score+1),main = "Number of upvotes", col='red', xlab = "log10(Score Number + 1)", frequency=FALSE)
 
-hist(log10(activity_per_author$n), main = 'Posts per author', col = 'red', xlab = "log10(activity per author)")
+hist(log10(activity_per_author$n), main = 'Posts per author', col = 'red', xlab = "log10(activity per author)", frequency=FALSE)
 
 
 ```
 
-Interpretation: the plots show a massive skew even though the data’s proportion is log10. All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the models.
+Interpretation: the plots show a massive skew even though the data’s proportion is `log10`. All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the models.
 
 ### 2.2 Regression: Analyze how activity, here defined as number of comments, influences score.
 
