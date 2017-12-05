@@ -22,13 +22,17 @@ D2 <- read_csv("../data/clean_posts.csv")
 \newpage
 ## Goal
 
-Analyze reddit news posts because they give us a lot of information about what is important to society at a particular time. We use reddit because it is one of the most popular websites in the world and has a very active user community, with 1.6 billion users. The news subreddit alone has 70,000 posts in a month.
+Reddit is a famous American social news aggregation and discussion website with a community of 1.6 billion users. The members post content on the website and it is then voted up or down by other members of the community. This concept is very interesting since it gives a lot of information on what people are interested in and what matters for them at a particular point in time. Thus, it is the reason why we chose to work with Reddit data.  
 
-We believe that the posts of the top authors (authors that have the most posts) are representative of the community since their content should be varied. Furthermore, given the variety of news posts and the sentiments associated with them (there is always good & bad news) we think that there should be a correlation between good news and positive sentiments and bad news with negative sentiments.
+For the project, our group is particularly interested in the reach of a comment defined by its number of upvotes and comments. A second pillar of the project is based on Natural Language Processing based on the post content in order to extract meaningful information from the users' behavior and from the posts content. 
 
-We can assume that a particular author may lean towards a more positive or negative sentiment - we thus assign a variable `author_score` to represent how positive or negative a particular author is. This measure is calculaetd as the *summed sentiments of all posts of this particular author* , the question now becomes:
+In this paper, we first start to analyze the data set by showing the distribution of important post features, we then look at how the number of comments influences the upvotes and how the time passed since posting time impacts the change in number of upvotes. 
 
-**For each post, can we determine whether their post will be well liked, given the author's general sentiment?**. Our hypothesis is that posts with a positive sentiment will be received better than those with a negative one, so authors that have a generally positive sentiment would have much more upvotes (positive correlation between `author_score` and `like_score`)
+Then, we put emphasis on Natural Language Processing in order to analyze the users' behavior and the posts. We first describe the sentiment of the data and show how the authors tend to repost news posts on Reddit. We then estimate the proportion of each sentiment in reddit titles and how the posts' sentiments are related to each other. 
+
+In a third part, we apply the perceptron model to classify successful posts based on posts' features. Finally, 
+
+The output of the paper gives a great insight in the drivers of the reach of a post and how people post on Reddit.    
 
 ## Data
 
@@ -125,14 +129,7 @@ ggplot(D) +
 
 Interpretation: Here, we can see that an additional comment yields on average a 4.9 increase in the score number. The result is statistically significant given the low  p-value of < 2.2e-16. 
 
-### 2.3 Regression determining the effect of features on up votes and number of comments
-
-```{r}
-# Tatiana's regression
-
-```
-
-### 2.4 Regression: Analyze how the time passed influences the number of upvotes. 
+### 2.3 Regression: Analyze how the time passed influences the number of upvotes. 
 
 Explanations: here, we log the number of upvotes because the distance between the different number of upvotes is too high and we don’t get any significant result. We also select only the posts which have more than one upvotes and focus on posts which are 7 days old because the upvotes usually happens in the next days following the posting date. 
 
@@ -162,12 +159,11 @@ For every additional day, a post gets an additional 0.09013 upvote. The result i
 
 In this part, we will use 2 different libraries: NRC and Afinn in order to compute the sentiment of each word of the data set and ultimately be able to compute the sentiment of the different titles. These 2 libraries will be used for two very different purposes, which will be illustrated in the following examples. 
 
-
-##2.1. Histogram of sentiment analysis of the data set using AFINN OR NRC?? alex part
+##2.1. Histogram of sentiment analysis of the data set using the Afinn dictionnary
 
 ```{r}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+##histogram of positive and negative + choose the 3D pie chart (next to each other?)
 
 ```
 
@@ -176,11 +172,11 @@ Interpretation:
 ##2.2. Analyze posting behavior with sentiment analysis using Afinn:  
 In this part, the goal is to analyze whether people interpret news in a positive or negative way when reposting a news. This is done by analyzing the difference of sentiment level between the source title (title displayed on a news website such as on times.com) and the actual title of the reddit user's post. 
 
-Approach: to do this, source titles have been retrieved with the help of their URL, then the sentiment score on both title lists has been calculated with the help of the Afinn lexicon assigning a weight between `-5 < weight < 5` for every word. We chose Afinn because it ranks the sentiment on a scala, making it easier to compare. Finally, the difference has been computed which enables to get some insights as seen in the following graphics: the histogram shows the proportions of posts changed, positive or negative while the 3D chart illustrates the percentage.
+Approach: to do this, source titles have been retrieved with the help of their URL, then the sentiment score on both title lists has been calculated with the help of the Afinn lexicon assigning a weight between `-5 < weight < 5` for every word. We chose Afinn because it ranks the sentiment on a scala, making it easier to compare. Finally, the difference has been computed which enables to get some insights as seen in the following graphics: the histogram shows the proportions of posts unchanged, positive or negative while the 3D chart illustrates the percentage of these classes.
 
 ```{r}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+#histogram of positive and negative + choose the 3D pie chart (next to each other?)
 
 ```
 
@@ -190,14 +186,16 @@ As observed on the pie chart, most Reddit users (4 out of 5 users) tend to repos
 
 ##2.3.	Estimation of proportion of each sentiment in reddit titles: how to illustrate sentiment through : Radial dendrogram
 
+There are many ways to represent and analyse the data sets, we decided to explore the beauty of our Reddit dataset in several ways. At first, we used a 'visNetwork' library to  create a node-based radial dendrogram. It requires creation of the hierarchy, so we modified our initial sentiment dataset with additional column containing the following hierarchy: Sentiment | Sentiment Detail | Word. The following diagram shows the sentiment allocation for the words used in top 50 posts. 
+
 ```{r}
-Tatiana's Radial dendrogram
+#Tatiana's Radial dendrogram
 ```
 
-##2.4. How the sentiments are related : network diagrame
+##2.4. How the sentiments are related : network diagramme
 ```{r}
 
-Tatiana's dendogram
+#Tatiana's  network diagram 
 
 ```
 
@@ -216,7 +214,7 @@ This splits the data in X% successful posts and X% not successful posts. Then, w
 
 ```{r}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+#show the learning effect 
 
 ```
 
@@ -224,7 +222,7 @@ histogram of positive and negative + choose the 3D pie chart (next to each other
 
 ```{r}
 
-histogram of positive and negative + choose the 3D pie chart (next to each other?)
+##summary of results for non classified 
 
 ```
 
