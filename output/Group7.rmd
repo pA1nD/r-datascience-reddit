@@ -101,7 +101,7 @@ I. Exploring the data: Descriptive analysis of the data set
 Alex’ code line (32-44)  insert graph 
 Interpretation: the plots show a massive skew even though the data’s proportion is log10.  All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the models. 
 
-##. Regression: Analyze how activity, here defined as number of comments, influences score.
+##2. Regression: Analyze how activity, here defined as number of comments, influences score.
 Alex’ code line (61-76)  insert graph 
 interpretation: Here, we can see that an additional comment yields on average a 4.9 increase in the score number. The result is statistically significant given the low  p-value of < 2.2e-16. 
 
@@ -142,7 +142,13 @@ As observed on the pie chart, most Reddit users (4 out of 5 users) tend to repos
 ##4. How the sentiments are related : network diagrame
 
 
-#### III. Prediction model with perceptron 
+#### III. Perceptron classification: 
+
+##1. Machine learning with Perceptron: prediction of a successful post based on 3 features
+In this part, 3 features, namely: the sentiment of the post, the length of the post and the posting time in the day will be used to predict whether a post is successful or not. 
+First, we defined a successful post as a post getting at least 2 likes.  
+This splits the data in successful posts: X% and not successful posts: X%
+
 
 
 \newpage
@@ -161,10 +167,6 @@ Thus, for each algorithm, we will outline the following:
 4. Performance: By what measures to we determine the success or failure of our algorithm?
 5. A discussion on the implementation
 
-But before we go to
-### 1. Perceptron Classification
 
-The perceptron is the simplest neural network one can build. Because we have a big dataset, we will apply it via a Stochastic Gradient Descent algorithm. It is based no the concept of a simple brain, where it fires if the signals it receives are above a threshold, and stays dormant if this threshold is not reached.
 
-For this algorithm, we want to classify the sentiment (positive/negative) of a post given 2 features - (1) Author's sentiment, (2) Post's score
 
