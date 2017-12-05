@@ -92,30 +92,19 @@ Everything related to cleaning the original dataset is defined in `clean.r`. Ess
 * removes non-english titles, which halves our original dataset.
 
 ### Getting relevant data - `[05_Classification_Data.R]`:
-1. We remove all authors with the value `[deleted]`, because this is value given to users who have deleted their accounts, which mean that we become unable to different specific users.
-2. We only take posts who have a `like_score > 1`. Since all posts created automatically have a score of 1, this does not really tell us anything about the correlation of upvotes and downvotes. (fig 1) shows that the long tail of the distribution is when the `like_score = 1`
+We remove all authors with the value `[deleted]`, because this is value given to users who have deleted their accounts, which mean that we become unable to different specific users.
 
 After these two operations, our dataset is reduced to `3946` rows compared to the originial `31,713`, and this is further reduced to `394` upon generating the `author_score`
 
-We split the data set into `70% testing; 30% training`.
-
-## Descriptive statistics and analysis
-
-Here we start our examination of the dataset by looking into the relationships between the different features we have, for example:
-
-1. The distribution of upvotes and comments
-2. The correlation between upvotes and comments
-3. The distribution of posts over time
-
-I. Descriptive analysis of the data set: exploring the data (1,5 page) 
+I. Exploring the data: Descriptive analysis of the data set
  
-1. Correlation Matrix: looking at multiple features 
+1. Correlation Matrix: looking at multiple features: number of comments, score, and time passed
 Alex’ code line (110-119)  insert graph 
 Interpretation: number of comments, score, and time passed all slightly correlate negatively (-0.04%) with sentiment score. Number of comments strongly correlates positively with score (as shown in the regression above)
 
 2. Analysis of various features (to be selected, you can choose the one making most sense) 
 Alex’ code line (32-44)  insert graph 
-Interpretation: the plots show a massive skew even though the data’s proportion is log10.  All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers.
+Interpretation: the plots show a massive skew even though the data’s proportion is log10.  All ploted variables are right side skewed which shows that the sample consists many low discrete values and marginal number of outliers. This is very important since it has to be taken into consideration in order to adapt the data to get significant results later in this project depending on the . 
 
 3. Regression: Analyze how activity, here defined as number of comments, influences score.
 Alex’ code line (61-76)  insert graph 
@@ -128,31 +117,22 @@ Interpretation:
 For every additional day, a post gets an additional 0.09013 upvote. The result is statistically significant given the p-value < 0.02902. 
 
 
-### Distributions
+## II. Sentiment analysis 
 
-#### How are the upvotes / comments distributed?
-We use take `log(score)` to reduce the scale of the graph (posts with `score=0` are mapped to `score=-1` to avoid a `-inf` result). We can clearly see that there is an exponential distribution and it is interesting to note that the longest tail is where `score = 1`
+##  Natural Language Processing with `tidytext`:
 
-The comments follow this distribution
+We take the sentiment of each word found in our training dataset with 2 different libraries - NRC and afinn. There 
 
-#### Correlation between upvotes & comments
+Afinn is the most useful in these classifications since it assigns a weight between `-5 < weight < 5` for every word. This is the algorithm we use for the classification algorithms that we will present later.
 
-#### Distribution of posts over time.
 
-There is some cyclicality of posts during both the month and the day. This may have implications on upvote score depending on time/date posted. Our paper will not focus on this.
 
-## Sentiment - NLP with `tidytext`:
-
-We take the sentiment of each word found in our training dataset with 3 different libraries - bing, mcr and afinn. Afinn is the most useful in these classifications since it assigns a weight between `-5 < weight < 5` for every word. This is the algorithm we use for the classification algorithms that we will present later.
-
-### The new Dataset
 
 \newpage
 
 ## Machine Learning
 
 ### Overview
-We used 4 different supervised classification algorithms to examine what we can learn from this dataset. One of the core tasks of machine learning is classification of data points.
 
 Reddit, being one of the most popular websites on the internet has a very wide reach. We think that being able to classify a post on whether it is good or bad is the first step in being able to determine/study how to make a good post. Since we are analyzing a news dataset, the value this brings is to easily determine what topics are relevant to people at a certain time period, based on the assumption that good posts will generate more upvotes and/or comments.
 
@@ -171,13 +151,3 @@ The perceptron is the simplest neural network one can build. Because we have a b
 
 For this algorithm, we want to classify the sentiment (positive/negative) of a post given 2 features - (1) Author's sentiment, (2) Post's score
 
-### 2. Logistic Regression
-
-Despite being called a "regression", the logistic Regression is a classification algorithm, instead of a predictive algorithm. The concept is based on the logistic function, whose output is in the range between 0 and 1.
-
-
-### 3. Bayes Classifier
-
-The bayes classifier is a classification algorithm based on probability theory. The idea is to get the class where a certain value *most probably* belongs to. Here, we maximize the likelihood.
-
-### 4. Neural Network
