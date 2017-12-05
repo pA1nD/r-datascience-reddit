@@ -13,7 +13,7 @@ library(readr)
 library(ggplot2)
 ```
 
-```{r echo=FALSE, message=FALSE}
+```{r regression, echo=FALSE, fig.height=3, fig.width=4, message=FALSE}
 D <- read_csv("./data/clean_posts_sent.csv")
 xlab= 'Number Of Comments'
 ylab='Score Number'
@@ -23,14 +23,19 @@ ggplot(D) +
   geom_point(aes(num_comments, score), color = "green4") +
 
   #add curve that shows statistical relationship between variables
-  geom_smooth(aes(num_comments, score), method = "lm" ,color = "red3")+
+  geom_smooth(aes(num_comments, score), method = "lm" ,color = "red3") +
+  
   labs(x = xlab, y = ylab,
-       title = "Regression: Number Of Comments vs. Score Number")
+       title = "Reg: Comment Number vs. Score Number") +
+  
+  theme(title=element_text(size=8, face="bold"),
+    axis.text=element_text(size=6),
+        axis.title=element_text(size=6,face="bold"))
 
 
 # Estimator results
-reg = lm(D$score ~ D$num_comments)
-summary(reg)
+# reg = lm(D$score ~ D$num_comments)
+# summary(reg)
 ```
 
 
