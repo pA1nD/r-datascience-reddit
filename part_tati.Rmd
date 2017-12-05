@@ -11,14 +11,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 2. Beauty of the data
 
-There are many ways to represent and analyse the data sets, we decided to explore the beauty of our Reddit dataset in several ways. At first, we used a 'visNetwork' library to  create a node-based radial dendrogram. It requires creation of the hierarchy, so we modified our initial sentiment dataset with additional column containing the following hierarchy: Sentiment | Sentiment Detail | Word. The following diagram shows the sentiment allocation for the words used in top 50 posts. 
+There are many ways to represent and analyse the data sets, we decided to explore the beauty of our Reddit dataset in several ways. After extracting sentiment from each word in the title sentence using Saif & Turney (2010) research for NRC dictionary (as research was named after National research Council Canada), which allocates a word into eight sentiment categories. At first, we used a 'visNetwork' library to  create a node-based radial dendrogram. It requires creation of the hierarchy, so we modified our initial sentiment dataset with additional column containing the following hierarchy: Sentiment | Sentiment Detail | Word. The following diagram shows the sentiment allocation for the words used in top 50 posts. 
 
 
 ```{r cars}
 "Radial NRC Visual.html"
 ```
 
-Secondly, we create 
+Secondly, just as in real life there are multiple interpretations, a single word is allocated to the multiple sentiments. To explore this further we create an interactive network, which portrays connections between words and sentiment. Indeed, as seen on the graph below, a single word may be allocated to the multiple sentiments, but this is not always the case due to the fact that   
 
 ## Including Plots
 
@@ -28,4 +28,6 @@ You can also embed plots, for example:
 plot(pressure)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+References: 
+
+Saif, M.M. & Turney, P.D. (June, 2010). Emotions Evoked by Common Words and Phrases: Using Mechanical Turk to Create an Emotion Lexicon. Proceedings of the NAACL-HLT 2010 Workshop on Computational Approaches to Analysis and Generation of Emotion in Text. LA, California.  
