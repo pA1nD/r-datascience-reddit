@@ -113,10 +113,10 @@ df4 <- df[52195:69593, ]
 titleClean = function(df){
   df <- df %>%
     mutate(
-        title_clean = Clean_String(title),
-        lang = textcat(title)) %>%  # textcat identifies languages) %>%
+      title_clean = Clean_String(title),
+      lang = textcat(title)) %>%  # textcat identifies languages) %>%
     filter(lang == "english") # filter out non-english languages
-    #mutate(title_clean = Clean_String(title))
+  #mutate(title_clean = Clean_String(title))
 }
 
 dftest_clean <- titleClean(df_test)
