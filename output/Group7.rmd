@@ -344,6 +344,14 @@ This splits the data in X% successful posts and X% not successful posts. Then, w
 
 # Discussion on the implementation
 
-### 4.2 Convolutional network to predict subreddit classification
+### 4.2 Convolutional network (CNN) to predict subreddit classification
 
+Natural Language Processing (NLP) can also be done using deep learning. There are various approaches to NLP using CNNs.
+As the last point, we will try to use a Deep Neural Network (DNNs) to predict the subreddit classification.
 
+This will build on a example from Microsoft as part of the [Cortana Intelligence Gallery Content](https://github.com/Azure/Cortana-Intelligence-Gallery-Content). After succesfully setting up a classification, we would move on to change the CNN's last layer to perform a regression for likes instead of a classification.
+
+The idea of using deep learning for text classification at character level came first in 2015 with the Crepe model.
+After experimenting with multiple approaches, this seems to be a promising way. But as the test shows, both, setting up the right hardware and getting to convergence are big problems.
+
+#### Hardware
