@@ -65,7 +65,7 @@ Title_sentiment <- Title_sentiment %>%
 Title_sentiment <- Title_sentiment %>%
   inner_join(get_sentiments("afinn")) %>%
   group_by(index_author) %>%
-  summarise(sentiment = sum(score))
+  dplyr::summarise(sentiment = sum(score))
 
 DF1 <- inner_join(Title_sentiment, DF, by = "index_author")
 
