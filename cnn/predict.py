@@ -17,7 +17,7 @@ def transform_text(text):
 #### Load the model into memory ####
 ALPHABET = list("abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+ =<>()[]{}")
 FEATURE_LEN = 1014
-model = mx.model.FeedForward.load(sys.argv[1], sys.argv[2])
+model = mx.model.FeedForward.load(sys.argv[1], int(sys.argv[2]))
 
 text = "I love Pikatchu Pokemon"
 text = transform_text(text)
