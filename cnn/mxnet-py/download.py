@@ -26,13 +26,13 @@ print("Downloading file %s" % url_test)
 download_file(url_test)
 
 #http://yann.lecun.com/exdb/mnist/
-%matplotlib inline
+# %matplotlib inline
 import numpy as np
 import pandas as pd
 import mxnet as mx
 import time
 import math
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import logging
 
 BATCH_SIZE = 100
@@ -107,7 +107,7 @@ ctx = mx.cpu()
 cnn = create_lenet()
 
 # Visualise symbol (for crepe)
-mx.viz.plot_network(cnn)
+# mx.viz.plot_network(cnn)
 
 cnn.list_arguments()
 
