@@ -8,6 +8,78 @@ import math
 # import matplotlib.pyplot as plt
 import logging
 
+
+BATCH_SIZE = 100
+DATA_SHAPE = (BATCH_SIZE, 1, 28, 28)
+EPOCHS = 10
+LR  = 0.1
+MOM = 0.9
+WD = 0.00001
+
+# logging
+logger = logging.getLogger()
+fhandler = logging.FileHandler(filename='lenet.log', mode='a')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fhandler.setFormatter(formatter)
+logger.addHandler(fhandler)
+logger.setLevel(logging.DEBUG)
+
+
+# gather data
+train = pd.read_csv('mnist_train.csv', header=None)
+train_y = train[[0]].values.ravel()
+train_x = train.iloc[:,1:].values
+
+# modify data
+train_x = np.array(train_x, dtype='float32').reshape((-1, 1, 28, 28))
+#print(train_x.shape)  # (60000, 1, 28, 28)
+# normalise (between 0 and 1)
+train_x[:] /= 255.0
+
+# iterator to feed mini_batch at a time
+# returns <mxnet.io.DataBatch object at 0x000001AA996B38D0>
+# type <class 'mxnet.io.DataBatch'>
+train_iter = mx.io.NDArrayIter(train_x, train_y, batch_size=BATCH_SIZE, shuffle=True)
+
+
+def create_lenet():
+    # create symbolic representation
+    data = mx.symbol.Variable('data')
+    input_y = mx.sym.Variable('softmax_label')  # placeholder for output
+
+    conv1 = mx.symbol.Convolution(
+        data=data, kernel=(5,5), num_filter=20)
+    tanh1 = mx.symbol.Activation(
+        data=conv1, act_type="tanh")
+    pool1 = mx.symbol.Pooling(
+        data=tanh1, pool_type="max", kernel=(2,2), stride=(2,2))
+
+    conv2 = mx.symbol.Convolution(
+        data=pool1, kernel=(5,5), num_filter=50)
+    tanh2 = mx.symbol.Activation(
+        data=conv2, act_type="tanh")
+    pool2 = mx.symbol.Pooling(
+        data=tanh2, pool_type="max", kernel=(2,2), stride=(2,2))
+
+    flatten = mx.symbol.Flatten(
+        data=pool2)
+
+    fc1 = mx.symbol.FullyConnected(
+        data=flatten, num_hidden=500)
+    tanh3 = mx.symbol.Activation(
+        data=fc1, act_type="tanh")
+
+    fc2 = mx.symbol.FullyConnected(
+        data=tanh3, num_hidden=10)
+
+    lenet = mx.symbol.SoftmaxOutput(
+        data=fc2, label=input_y, name="softmax")
+    return lenet
+
+
+
+
+
 from mxnet.io import DataBatch
 
 GPUS = 4
