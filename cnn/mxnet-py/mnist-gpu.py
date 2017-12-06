@@ -75,10 +75,56 @@ def create_lenet():
     lenet = mx.symbol.SoftmaxOutput(
         data=fc2, label=input_y, name="softmax")
     return lenet
+# ################################################
+
+# create own iterator (that can optionally apply transform function)
+def manual_iterator(infile, batch_size=100, shuffle=True):
+
+    """ Accepts 'infile' location to a .csv and then yields numpy arrays
+    wrapped as NDarrays using mx.nd.array(np.array(data, dtype='float32'))
+    reshaped for the CNN symbol i.e. .reshape((LENGTH, 1, FEAT, DIM))"""
+
+    # load in data
+    df = pd.read_csv(infile, header=None)
+
+    # shuffle
+    if shuffle:
+        df = df.sample(frac=1).reset_index(drop=True)
+
+    train_x, train_y = df.iloc[:,1:].values, df[[0]].values.ravel()
+
+    # modify data
+    train_x = np.array(train_x, dtype='float32').reshape((-1, 1, 28, 28))
+
+    # transformation
+    train_x[:] /= 255.0
+
+    # yield mini-batches as NDArray
+    X_split = np.zeros(DATA_SHAPE, dtype='float32')
+    for ti, tx in enumerate(train_x):
+
+        X_split[ti%batch_size][0] = tx
+
+        if (ti + 1) % batch_size == 0:
+            yield mx.nd.array(X_split), mx.nd.array(train_y[ti+1-batch_size:ti+1])
+            X_split = np.zeros(DATA_SHAPE, dtype='float32')
+
+def example(infile='mnist_train.csv'):
+
+    mbatch = 3
+    df = pd.read_csv(infile, header=None)
+    train_y = df[[0]].values.ravel()
+    print("actual: ", train_y[:mbatch*4])
+
+    counter = 0
+    for batchX, batchY in manual_iterator(infile, batch_size=mbatch, shuffle=False):
+        print("batch: ", batchY.asnumpy().astype('int32'))
+        counter += 1
+        if counter == 4:
+            break   
 
 
-
-
+# #################################################
 
 from mxnet.io import DataBatch
 
