@@ -1,6 +1,10 @@
 ---
 title: "Datascience Fundamentals with R - Reddit"
-author: "Group 7"
+author: 
+  - Camille Chauvin
+  - Tetyana Drobot
+  - Björn Schmidtke
+  - Alexander Arzt
 date: "December 5, 2017"
 output: pdf_document
 ---
@@ -76,10 +80,7 @@ Everything related to cleaning the original dataset is defined in `clean.r`. Ess
 * removes special characters from titles
 * removes non-english titles, which halves our original dataset.
 
-### Getting relevant data - `[05_Classification_Data.R]`:
-We remove all authors with the value `[deleted]`, because this is value given to users who have deleted their accounts, which mean that we become unable to different specific users.
-
-After these two operations, our dataset is reduced to `3946` rows compared to the originial `31,713`, and this is further reduced to `394` upon generating the `author_score`
+It creates a csv file that is used by all files.
 
 ## 2. Exploring the data: Descriptive analysis of the data set `[2_analysis.r]`
 
@@ -87,11 +88,11 @@ After these two operations, our dataset is reduced to `3946` rows compared to th
 
 Since the data is massively skewed, we set the proportion as log10.
 
-```{r echo=FALSE, fig.height=4, message=FALSE, fig.align="center"}
+```{r echo=FALSE, fig.align="center", fig.height=4, message=FALSE, warning=FALSE}
 activity_per_author = D %>% group_by(author) %>% count(author) #checking out many articles
 activity_per_author = activity_per_author %>% filter(author!='[deleted]') #cutting out the deleted ones
 
-#par(mfrow=c(2,3))
+par(mfrow=c(1,3))
 
 #boxplot(log10(D$num_comments+1), main="Comments", xlab="n = 15400")
 
@@ -112,7 +113,7 @@ Interpretation: the plots show a massive skew even though the data’s proportio
 
 ### 2.2 Regression: Analyze how activity, here defined as number of comments, influences score.
 
-```{r regression, echo=FALSE, fig.height=3, fig.width=4, message=FALSE, fig.align="center"}
+```{r regression, echo=FALSE, fig.height=3, fig.width=4, message=FALSE, fig.align="center", warning=FALSE}
 xlab= 'Number Of Comments'
 ylab='Score Number'
 
@@ -132,7 +133,7 @@ Interpretation: Here, we can see that an additional comment yields on average a 
 
 Explanations: here, we log the number of upvotes because the distance between the different number of upvotes is too high and we don’t get any significant result. We also select only the posts which have more than one upvotes and focus on a one week time period because posts get most of their upvotes in the few days following their post date. This conclusion is based on the cyclicality seen in the data.
 
-```{r echo=FALSE, message=FALSE, fig.height=3, fig.width=4, fig.align="center"}
+```{r echo=FALSE, message=FALSE, fig.height=3, fig.width=4, fig.align="center", warning=FALSE}
 D2 <- D2 %>%
   mutate(index_author = 1:nrow(D2))
 
@@ -161,7 +162,7 @@ In this part, we will use 2 different libraries: NRC and Afinn in order to compu
 
 ### 3.1 Histogram of sentiment analysis of the data set using the Afinn dictionnary
 
-```{r echo=FALSE, fig.height=2, fig.width=5, message=FALSE, fig.align="center"}
+```{r echo=FALSE, fig.height=2, fig.width=5, message=FALSE, fig.align="center", warning=FALSE}
 
 ggplot(D, aes(x=sent_score))+
   geom_histogram(color="black", fill='white')+
@@ -173,122 +174,15 @@ ggplot(D, aes(x=sent_score))+
 
 ```
 
-Interpretation:  
+Interpretation: The Sentiment of posts is concentrated between -10 and 10. Interestingly posts are are either positive or negative and less often neutral.
 
 ### 3.2 Analyze posting behavior with sentiment analysis using Afinn:  
 In this part, the goal is to analyze whether people interpret news in a positive or negative way when reposting a news. This is done by analyzing the difference of sentiment level between the source title (title displayed on a news website such as on times.com) and the actual title of the reddit user's post.
 
 Approach: to do this, source titles have been retrieved with the help of their URL, then the sentiment score on both title lists has been calculated with the help of the Afinn lexicon assigning a weight between `-5 < weight < 5` for every word. We chose Afinn because it ranks the sentiment on a scala, making it easier to compare. Finally, the difference has been computed which enables to get some insights as seen in the following graphics: the histogram shows the proportions of posts unchanged, positive or negative while the 3D chart illustrates the percentage of these classes.
 
-```{r echo=FALSE, fig.height=3, fig.width=4, fig.align="center", message=FALSE, warning=FALSE}
-
-library(plyr)
-library(plotrix)
-
-D2 <- D2 %>%
-  mutate(index_author = 1:nrow(D2))
-
-
-# Retrieve Data of URL-----------------------------------------------------------------
-
-TITLE_NEWS <- read_delim("../data/titles.csv", "; ", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
-
-
-# Clean, add legend and merge tabs with URL  ----------------------------------------------------
-
-names(TITLE_NEWS)[1]<-paste("Source URL")
-names(TITLE_NEWS)[2]<-paste("source title")
-names(D2)[5]<-paste("Source URL")
-
-TITLE_NEWS <- TITLE_NEWS %>%
-  dplyr::select("Source URL", "source title")
-
-TITLE_merged <- inner_join(TITLE_NEWS, D2, by = "Source URL")
-
-
-# create new tab with only relevant columns  ------------------------------
-
-Title_analysis <-
-  TITLE_merged %>% dplyr::select("author",
-                        "domain",
-                        "Source URL",
-                        "num_comments",
-                        "score",
-                        "title",
-                        "source title",
-                        "period_posted",
-                        "period_retrieved",
-                        "index_author")
-
-
-# Separate the data (in words) so that the library Afinn can be applied ---------------------
-
-Title <- TITLE_merged %>% dplyr:: select("title", "index_author")
-Source_title <- TITLE_merged %>% dplyr:: select("source title", "index_author")
-
-title_words <- Title %>%
-  unnest_tokens(word, title)
-
-title_source_words <- Source_title %>%
-  unnest_tokens(word, "source title")
-
-
-# Compute the sentimentanalysis on the words --------------------------
-
-# titles
-afinn <- title_words %>%
-  inner_join(get_sentiments("afinn"))
-
-afinn_grouped_title <- title_words %>%
-  inner_join(get_sentiments("afinn")) %>%
-  group_by(index_author) %>%
-  dplyr::summarise(sentiment = sum(score))
-
-# source titles
-afinn_source <- title_source_words %>%
-  inner_join(get_sentiments("afinn"))
-
-afinn_grouped_source_title <- title_source_words %>%
-  inner_join(get_sentiments("afinn")) %>%
-  group_by(index_author) %>%
-  dplyr::summarise(sentiment_source = sum(score))
-
-merged_sentiment_titles <- inner_join(afinn_grouped_title, afinn_grouped_source_title, by = "index_author")
-
-# Plot the difference between both
-merged_sentiment_titles <- merged_sentiment_titles %>%
-  dplyr::mutate(interpretation_level = sentiment - sentiment_source)
-
-
-merged_sentiment_titles <- merged_sentiment_titles %>%
-  dplyr::mutate( interpretation1 = merged_sentiment_titles$interpretation_level * 0)
-
-for (i in 1:nrow(merged_sentiment_titles)) {
-  if (merged_sentiment_titles$interpretation_level[i] < 0) {
-    merged_sentiment_titles$interpretation1[i] <- "Negative"
-  } else if (merged_sentiment_titles$interpretation_level[i] > 0) {
-    merged_sentiment_titles$interpretation1[i] <- "Positive"
-  } else if (merged_sentiment_titles$interpretation_level[i] == 0) {
-    merged_sentiment_titles$interpretation1[i] <- "No change"
-  } else
-    { "NA" }
-  }
-
-p = length(which(merged_sentiment_titles$interpretation1 == "Positive"))
-n = length(which(merged_sentiment_titles$interpretation1 == "Negative"))
-nc = length(which(merged_sentiment_titles$interpretation1 == "No change"))
-
-number_of_interpretation <-c(p, n, nc)
-kind_of_interpretation <- c("positive", "negative", "no change")
-percentage <- round(number_of_interpretation/sum(number_of_interpretation)*100)
-labels <- paste(kind_of_interpretation, percentage)
-labels <- paste(labels,"%",sep="")
-
-pie3D(number_of_interpretation,labels=labels,explode=0.5,
-      main="Pie Chart 3D of interpretation levels ",
-      col=c("brown","#ddaa00","pink","#dd00dd"))
-
-
+```{r echo=FALSE, out.width="200px", fig.align="center", message=FALSE, warning=FALSE}
+knitr::include_graphics("assets/pie.png")
 ```
 
 Interpretation:
@@ -297,10 +191,9 @@ As observed on the pie chart, most Reddit users (4 out of 5 users) tend to repos
 
 ### 3.3 Estimation of proportion of each sentiment in reddit titles: how to illustrate sentiment through : Radial dendrogram
 
-There are many ways to represent and analyse the data sets, we decided to explore the beauty of our Reddit dataset in several ways. At first, we used a 'visNetwork' library to  create a node-based radial dendrogram. It requires creation of the hierarchy, so we modified our initial sentiment dataset with additional column containing the following hierarchy: Sentiment | Sentiment Detail | Word. The following diagram shows the sentiment allocation for the words used in top 50 posts.
+There are many ways to represent and analyse the data sets, we decided to explore the beauty of our Reddit dataset in several ways. After extracting sentiment from each word in the title sentence using Saif & Turney (2010) research for NRC dictionary (as research was named after National research Council Canada), which allocates a word into eight sentiment categories. At first, we used a 'visNetwork' library to  create a node-based radial dendrogram. It requires creation of the hierarchy, so we modified our initial sentiment dataset with additional column containing the following hierarchy: Sentiment | Sentiment Detail | Word. The following diagram shows the sentiment allocation for the words used in top 50 posts. 
 
 [It's interactive. Click here to try it out online.](https://pa1nd.github.io/r-datascience-reddit/Radial_NRC_Visual.html)
-[You can also see the online network diagram here](https://github.com/pA1nD/r-datascience-reddit/blob/master/docs/Network_NRC_Visual.html)
 
 ```{r echo=FALSE, message=FALSE, out.width="200px", fig.align="center"}
 knitr::include_graphics("assets/radial_dendrogram.png")
@@ -308,12 +201,21 @@ knitr::include_graphics("assets/radial_dendrogram.png")
 
 
 ### 3.4 How the sentiments are related : network diagram
+
+Secondly, just as in real life there are multiple interpretations, a single word is allocated to the multiple sentiments. To explore this further we create an interactive network, which portrays connections between words and sentiment. Indeed, as seen on the graph below, a single word may be allocated to the multiple sentiments. The emotions associated with either positive or negative sentiment are grouped together, only a "surprise" node is located in the middle linking the words associated with both.
+
+
+[You can also see the online network diagram here](https://github.com/pA1nD/r-datascience-reddit/blob/master/docs/Network_NRC_Visual.html)
 ```{r echo=FALSE, message=FALSE, out.width="200px", fig.align="center"}
-knitr::include_graphics("assets/network_diagram.png")
+knitr::include_graphics("assets/network.png")
 
 ```
 
-## 4. Perceptron classification  `[2_models.r]`
+References: 
+
+Saif, M.M. & Turney, P.D. (June, 2010). Emotions Evoked by Common Words and Phrases: Using Mechanical Turk to Create an Emotion Lexicon. Proceedings of the NAACL-HLT 2010 Workshop on Computational Approaches to Analysis and Generation of Emotion in Text. LA, California.  
+
+## 4. Perceptron classification  `[4_models.r]`
 
 ### 4.1 Machine learning with Perceptron: prediction of a successful post based on 3 features
 
@@ -322,27 +224,21 @@ Feature 2: length of the post (number of characters)
 Feature 3: Posting time (within a day)
 
 In this part, the three features illustrated above will be used to predict whether a post is successful or not. First, we define a successful post as a post getting at least 2 likes.  
-This splits the data in X% successful posts and X% not successful posts. Then, we prepare the data by assigning every successful post the category 1 and every non successful post the category -1. After this, we keep only the posting time in hours as well as the sentiment of each title. The Training data is then split in 70% training and 30% testing.
+This splits the data in successful posts and not successful posts. Then, we prepare the data by assigning every successful post the category 1 and every non successful post the category -1. After this, we keep only the posting time in hours as well as the sentiment of each title. The Training data is then split in 70% training and 30% testing.
 
 ### Let's have a look at the training
 
 The result of the perceptron
-```{r}
 
-#show the learning effect
+```{r echo=FALSE, message=FALSE, out.width="200px", fig.align="center"}
+knitr::include_graphics("assets/Rplot.png")
 
 ```
 
 ### Performance of the algorithm
 
-```{r}
+Ratio of misclassified: `17.34` - Given the simple model, it seems surprisingly good.
 
-##summary of results for non classified
-
-```
-
-
-# Discussion on the implementation
 
 ### 4.2 Convolutional network (CNN) to predict subreddit classification
 
@@ -366,3 +262,14 @@ We are using a VM on Azure with 4 x K80. And 224 GB Ram. It will take around 5 w
 We are using a 9 layer deep convolutional neural network. The first 6 layers are convolutional layers. The last 3 are fully connected layers. As activation function, we use ReLu. We use a dropout of 0.5 in each layer. The first Kernel has a size of 7 (average word length).
 
 We use one-hot-encoding to encode sentences and create a matrix along the alphabet. This is known as "Character-level Convolutional Networks for Text Classification" and was first shown in [2015 by Xiang Zhang, Junbo Zhao, Yann LeCun](https://arxiv.org/abs/1509.01626).
+
+After running through 2 million datapoints (~24h), it is not converging, yet in epoch 5.
+
+```
+Batch [100] Speed: 494.785492140231 samples/sec Train-accuracy=0.14546875
+Batch [200] Speed: 489.140383087916 samples/sec Train-accuracy=0.143837890625
+Batch [300] Speed: 488.358155169825 samples/sec Train-accuracy=0.143639322916667
+Batch [1100] Speed: 484.049417451275 samples/sec Train-accuracy=0.143199573863636
+Batch [2800] Speed: 493.697798574983 samples/sec Train-accuracy=0.142578125
+Batch [2900] Speed: 484.230165922307 samples/sec Train-accuracy=0.142456223060345
+```
