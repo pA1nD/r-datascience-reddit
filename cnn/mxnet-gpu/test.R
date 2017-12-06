@@ -23,7 +23,7 @@ model <- mx.mlp(train.x, train.y, hidden_node=nHidden, out_node=2,
                 out_activation="softmax", num.round=nRounds,
                 array.batch.size=batchSize, learning.rate=0.07, momentum=0.9,
                 eval.metric=mx.metric.accuracy, array.layout="rowmajor",
-                device=mx.cpu(), verbose=FALSE
+                context=mx.cpu(), verbose=FALSE
 )
 toc()
 
@@ -33,7 +33,7 @@ model <- mx.mlp(train.x, train.y, hidden_node=nHidden, out_node=2,
                 out_activation="softmax", num.round=nRounds,
                 array.batch.size=batchSize, learning.rate=0.07, momentum=0.9,
                 eval.metric=mx.metric.accuracy, array.layout="rowmajor",
-                device=mx.gpu(), verbose=FALSE
+                context=mx.gpu(), verbose=FALSE
 )
 toc()
 
@@ -43,7 +43,7 @@ model <- mx.mlp(train.x, train.y, hidden_node=5*nHidden, out_node=1,
                 out_activation="rmse", num.round=10*nRounds,
                 array.batch.size=batchSize, learning.rate=0.07, momentum=0.9,
                 eval.metric=mx.metric.rmse, array.layout="rowmajor",
-                device=mx.cpu(), verbose=FALSE
+                context=mx.cpu(), verbose=FALSE
 )
 toc()
 
@@ -53,6 +53,6 @@ model <- mx.mlp(train.x, train.y, hidden_node=5*nHidden, out_node=1,
                 out_activation="rmse", num.round=10*nRounds,
                 array.batch.size=batchSize, learning.rate=0.07, momentum=0.9,
                 eval.metric=mx.metric.rmse, array.layout="rowmajor",
-                device=mx.gpu(), verbose=FALSE
+                context=mx.gpu(), verbose=FALSE
 )
 toc()
